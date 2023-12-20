@@ -1,0 +1,17 @@
+C:\Proyectos\TFG\squash_the_creeps_start_1.1.0\.godot\mono\temp\bin\Debug\Squash the Creeps (3D).deps.json
+C:\Proyectos\TFG\squash_the_creeps_start_1.1.0\.godot\mono\temp\bin\Debug\Squash the Creeps (3D).runtimeconfig.json
+C:\Proyectos\TFG\squash_the_creeps_start_1.1.0\.godot\mono\temp\bin\Debug\Squash the Creeps (3D).dll
+C:\Proyectos\TFG\squash_the_creeps_start_1.1.0\.godot\mono\temp\bin\Debug\Squash the Creeps (3D).pdb
+C:\Proyectos\TFG\squash_the_creeps_start_1.1.0\.godot\mono\temp\bin\Debug\GodotSharp.dll
+C:\Proyectos\TFG\squash_the_creeps_start_1.1.0\.godot\mono\temp\bin\Debug\GodotSharpEditor.dll
+C:\Proyectos\TFG\squash_the_creeps_start_1.1.0\.godot\mono\temp\obj\Debug\Squash the Creeps (3D).csproj.AssemblyReference.cache
+C:\Proyectos\TFG\squash_the_creeps_start_1.1.0\.godot\mono\temp\obj\Debug\Squash the Creeps (3D).GeneratedMSBuildEditorConfig.editorconfig
+C:\Proyectos\TFG\squash_the_creeps_start_1.1.0\.godot\mono\temp\obj\Debug\Squash the Creeps (3D).AssemblyInfoInputs.cache
+C:\Proyectos\TFG\squash_the_creeps_start_1.1.0\.godot\mono\temp\obj\Debug\Squash the Creeps (3D).AssemblyInfo.cs
+C:\Proyectos\TFG\squash_the_creeps_start_1.1.0\.godot\mono\temp\obj\Debug\Squash the Creeps (3D).csproj.CoreCompileInputs.cache
+C:\Proyectos\TFG\squash_the_creeps_start_1.1.0\.godot\mono\temp\obj\Debug\Squash the Creeps (3D).csproj.CopyComplete
+C:\Proyectos\TFG\squash_the_creeps_start_1.1.0\.godot\mono\temp\obj\Debug\Squash the Creeps (3D).dll
+C:\Proyectos\TFG\squash_the_creeps_start_1.1.0\.godot\mono\temp\obj\Debug\refint\Squash the Creeps (3D).dll
+C:\Proyectos\TFG\squash_the_creeps_start_1.1.0\.godot\mono\temp\obj\Debug\Squash the Creeps (3D).pdb
+C:\Proyectos\TFG\squash_the_creeps_start_1.1.0\.godot\mono\temp\obj\Debug\Squash the Creeps (3D).genruntimeconfig.cache
+C:\Proyectos\TFG\squash_the_creeps_start_1.1.0\.godot\mono\temp\obj\Debug\ref\Squash the Creeps (3D).dll

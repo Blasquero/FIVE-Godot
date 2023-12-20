@@ -1,3 +1,21 @@
+# Godot ignores
+
+godot/*/.godot/
+
+# Godot-specific ignores
+godot/*/.import/
+godot/*/export.cfg
+godot/*/export_presets.cfg
+
+# Imported translations (automatically generated from CSV files)
+godot/*/*.translation
+
+# Mono-specific ignores
+godot/*/.mono/
+godot/*/data_*/
+godot/*/mono_crash.*.json
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
