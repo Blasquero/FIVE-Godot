@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3 uid="uid://xujnp6hlchv"]
+
+[ext_resource type="Script" path="res://scripts/managers/CommunicationManager.cs" id="1_erti4"]
+[ext_resource type="Script" path="res://scripts/testing/MessageTestingButton.cs" id="2_8oyns"]
+
+[node name="CommunicationManager" type="Node2D"]
+script = ExtResource("1_erti4")
+ServerName = "jabbers.one"
+UserName = "edblaseTest1"
+Password = "BD7ehX@UE2SURsQ"
+
+[node name="TestButton" type="Button" parent="."]
+offset_right = 274.0
+offset_bottom = 91.0
+script = ExtResource("2_8oyns")
