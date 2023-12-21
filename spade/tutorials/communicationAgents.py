@@ -32,7 +32,7 @@ class ReceiverAgent(spade.agent.Agent):
         async def run(self):
             print("Receiver Behaviour Running")
 
-            message = await self.receive(1)
+            message = await self.receive(1000)
             if message:
                 print("Message received with content :{}".format(message.body))
             else:
@@ -46,6 +46,7 @@ class ReceiverAgent(spade.agent.Agent):
         template = spade.template.Template()
         template.set_metadata("performative","inform")
         self.add_behaviour(behaviour, template)
+
 
 async def main():
     receiver_agent = ReceiverAgent("edblaseTest1@jabbers.one", "BD7ehX@UE2SURsQ")

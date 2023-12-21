@@ -1,6 +1,8 @@
 using System;
+using Artalk.Xmpp;
 using Godot;
 using Artalk.Xmpp.Client;
+using Artalk.Xmpp.Im;
 using MessageEventArgs = Artalk.Xmpp.Im.MessageEventArgs;
 
 
@@ -19,13 +21,15 @@ public partial class CommunicationManager : Node
 	
 		XmppClient.Message += OnNewMessage;
 		XmppClient.Connect();
-		
-
 	}
 
-	static void OnNewMessage(object sender, MessageEventArgs messageEventArgs)
+	void OnNewMessage(object sender, MessageEventArgs messageEventArgs)
 	{
 		GD.Print($"Message received from {messageEventArgs.Jid} : {messageEventArgs.Message.Body}");
+		
+		//IMPORTANT: Mark messages as MessageType.Chat or else it won't be received
+		XmppClient.SendMessage("edblase@jabbers.one", "Hello", type:MessageType.Chat);
 	}
+	
 	
 }
