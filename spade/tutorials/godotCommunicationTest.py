@@ -9,7 +9,7 @@ class InformBehaviour(spade.behaviour.OneShotBehaviour):
         message.set_metadata("performative", "inform")
         message.set_metadata("ontology", "myOntology")
         message.set_metadata("language", "OWL-S")
-        message.body = "Hello Receiver"
+        message.body = "Hello mudafucka"
 
         await self.send(message)
         print("Message sent")

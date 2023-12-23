@@ -1,22 +1,13 @@
 using Godot;
-using System;
 
-public partial class MessageTestingButton : Button
+public partial class MessageTestingButton : Button, IMessageReceiverInterface
 {
-	// Called when the node enters the scene tree for the first time.
-	public override void _Ready()
-	{
-		var MessageCommunication = GetNode<CommunicationManager>("/root/CommunicationManager");
 
-	}
-
-	// Called every frame. 'delta' is the elapsed time since the previous frame.
-	public override void _Process(double delta)
+	#region IMessageReceiverInterface Overrides
+	public void ProcessReceivedMessage(string messageBody)
 	{
+		Text = messageBody;
 	}
-
-	public void OnMessageReceived(string body)
-	{
-		Text = body;
-	}
+	#endregion
+	
 }
