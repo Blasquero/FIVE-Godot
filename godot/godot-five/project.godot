@@ -11,13 +11,9 @@ config_version=5
 [application]
 
 config/name="godot-five"
-run/main_scene="res://scenes/levels/testing/CommunicationTestingScene.tscn"
+run/main_scene="res://scenes/levels/BaseLevel.tscn"
 config/features=PackedStringArray("4.1", "C#", "Forward Plus")
 config/icon="res://icon.svg"
-
-[autoload]
-
-XmppCommunicationManagerScenetscn="*res://scenes/prefabs/XMPPCommunicationManagerScenetscn.tscn"
 
 [dotnet]
 

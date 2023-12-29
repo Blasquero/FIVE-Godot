@@ -29,8 +29,8 @@ public partial class XMPPCommunicationManager : Node
     private List<Message> SentMessages = new List<Message>();
     private MessageTestingButton TestingButton = null;
 
-    #region Godot Overrides
-    public override void _Ready()
+    
+    public void StartXMPPClient()
     {
         XmppClient = new ArtalkXmppClient(ServerName, UserName, Password);
 
@@ -41,9 +41,8 @@ public partial class XMPPCommunicationManager : Node
             GD.PushError($"CommunicationManager::_Ready: Could not connect to server {ServerName}");
         }
 
-        TestingButton = GetNode<MessageTestingButton>("/root/TestButton");
+        //TestingButton = GetNode<MessageTestingButton>("/root/TestButton");
     }
-    #endregion
     
     private void OnNewMessage(object sender, MessageEventArgs messageEventArgs)
     {

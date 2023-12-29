@@ -1,0 +1,43 @@
+[gd_scene load_steps=8 format=3 uid="uid://ceh7fq83v8g24"]
+
+[ext_resource type="Script" path="res://scripts/managers/XMPPCommunicationManager.cs" id="1_0ek47"]
+[ext_resource type="Script" path="res://scenes/levels/SimulationManager.cs" id="1_khh5c"]
+[ext_resource type="Script" path="res://scripts/managers/AvatarManager.cs" id="2_sm3fg"]
+[ext_resource type="Script" path="res://scripts/managers/MapManager.cs" id="3_gwqqm"]
+[ext_resource type="PackedScene" uid="uid://ds0pr0doookum" path="res://scenes/prefabs/Camera.tscn" id="4_syuy5"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_i8bfn"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_86423"]
+
+[node name="Root" type="Node3D" node_paths=PackedStringArray("mapManager")]
+script = ExtResource("1_khh5c")
+mapManager = NodePath("Managers/MapManager")
+
+[node name="Managers" type="Node3D" parent="."]
+
+[node name="CommunicationManager" type="Node" parent="Managers"]
+script = ExtResource("1_0ek47")
+ServerName = "jabbers.one"
+UserName = "edblase"
+Password = "6@GBcCqggzER@Gt"
+
+[node name="AvatarManager" type="Node" parent="Managers"]
+script = ExtResource("2_sm3fg")
+
+[node name="MapManager" type="Node" parent="Managers" node_paths=PackedStringArray("groundBody")]
+script = ExtResource("3_gwqqm")
+PathToTextFile = "res://resources/map.txt"
+groundBody = NodePath("../../Ground")
+
+[node name="Camera" parent="." instance=ExtResource("4_syuy5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.17971, 0)
+
+[node name="Ground" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.50834, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground"]
+shape = SubResource("BoxShape3D_i8bfn")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Ground"]
+mesh = SubResource("BoxMesh_86423")
