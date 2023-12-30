@@ -17,11 +17,36 @@ namespace Utilities
         
     }
 
-    public static class Avatars
+    public static class Files
     {
-        public static bool RegisterAvatarAsAvailable(Node avatarToRegister)
+        public static Error GetFileContent(string pathToFile, out string fileContent)
         {
-            return AvatarManager.GetAvatarManager().RegisterAvatar(avatarToRegister);
+            fileContent = "";
+            if (!FileAccess.FileExists(pathToFile))
+            {
+                GD.PushError($"Error: File {pathToFile} doesn't exist");
+                return Error.FileBadPath;
+            }
+
+            using FileAccess mapFileAccess = FileAccess.Open(pathToFile, FileAccess.ModeFlags.Read);
+            Error openingError = mapFileAccess.GetError();
+       
+            if (openingError != Error.Ok)
+            {
+                return openingError;
+            }
+
+            fileContent = mapFileAccess.GetAsText();
+            return Error.Ok;
+        }
+    }
+
+    public static class Math
+    {
+        //Godot is left-handed
+        public static void OrientVector3(ref Vector3 vectorToOrient)
+        {
+            vectorToOrient.Z *= -1;
         }
     }
 }

@@ -1,0 +1,46 @@
+{
+	"origin": {
+		"x": 0.0,
+		"y": 0.0,
+		"z": 15.0
+	},
+	"distance": {
+		"x": 6,
+		"y": 3
+	},
+	"symbolToPrefabMap": [
+		{
+			"symbol": "T",
+			"prefabName": "Tree"
+		},
+		{
+			"symbol": "B",
+			"prefabName": "Tree Fruit Variant",
+			"dataFolder": "../../release/windows-server/oranges/black spot"
+		},
+		{
+			"symbol": "C",
+			"prefabName": "Tree Fruit Variant",
+			"dataFolder": "../../release/windows-server/oranges/canker"
+		},
+		{
+			"symbol": "G",
+			"prefabName": "Tree Fruit Variant",
+			"dataFolder": "../../release/windows-server/oranges/greening"
+		},
+		{
+			"symbol": "H",
+			"prefabName": "Tree Fruit Variant",
+			"dataFolder": "../../release/windows-server/oranges/healthy"
+		},
+		{
+			"symbol": "S",
+			"prefabName": "Tree Fruit Variant",
+			"dataFolder": "../../release/windows-server/oranges/scab"
+		},
+		{
+			"symbol": "A",
+			"prefabName": "Spawner"
+		}
+	]
+}

@@ -1,0 +1,80 @@
+{
+    "lights": [
+        {
+            "active": true,
+            "objectName": "Sun Light",
+            "objectPrefabName": "Light",
+            "position": {
+                "x": 0.0,
+                "y": 3.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "x": 35.0,
+                "y": 40.0,
+                "z": 0.0
+            },
+            "color": {
+                "r": 1.0,
+                "g": 0.95,
+                "b": 0.83,
+                "a": 1.0
+            },
+            "intensity": 2.0
+        },
+        {
+            "active": false,
+            "objectName": "Moon Light",
+            "objectPrefabName": "Light",
+            "position": {
+                "x": 0.0,
+                "y": 3.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "x": 154.0,
+                "y": 224.0,
+                "z": 0.0
+            },
+            "color": {
+                "r": 0.51,
+                "g": 0.70,
+                "b": 1.0,
+                "a": 1.0
+            },
+            "intensity": 1.4
+        }
+    ],
+    "objects": [
+        {
+            "active": true,
+            "objectName": "Spawner 0",
+            "objectPrefabName": "Spawner",
+            "position": {
+                "x": 3.5,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "active": false,
+            "objectName": "Tree 1",
+            "objectPrefabName": "Tree",
+            "position": {
+                "x": -2.5999999046325685,
+                "y": 0.0,
+                "z": 0.0
+            },
+            "rotation": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        }
+    ]
+}

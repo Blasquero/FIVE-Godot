@@ -1,8 +1,8 @@
 [gd_scene load_steps=8 format=3 uid="uid://ceh7fq83v8g24"]
 
 [ext_resource type="Script" path="res://scripts/managers/XMPPCommunicationManager.cs" id="1_0ek47"]
-[ext_resource type="Script" path="res://scenes/levels/SimulationManager.cs" id="1_khh5c"]
-[ext_resource type="Script" path="res://scripts/managers/AvatarManager.cs" id="2_sm3fg"]
+[ext_resource type="Script" path="res://scripts/managers/SimulationManager.cs" id="1_odr7g"]
+[ext_resource type="Script" path="res://scripts/managers/EntityManager.cs" id="3_7qgjf"]
 [ext_resource type="Script" path="res://scripts/managers/MapManager.cs" id="3_gwqqm"]
 [ext_resource type="PackedScene" uid="uid://ds0pr0doookum" path="res://scenes/prefabs/Camera.tscn" id="4_syuy5"]
 
@@ -10,9 +10,12 @@
 
 [sub_resource type="BoxMesh" id="BoxMesh_86423"]
 
-[node name="Root" type="Node3D" node_paths=PackedStringArray("mapManager")]
-script = ExtResource("1_khh5c")
-mapManager = NodePath("Managers/MapManager")
+[node name="Root" type="Node3D" node_paths=PackedStringArray("CommunicationManager", "MapManager", "EntityManager")]
+script = ExtResource("1_odr7g")
+CommunicationManager = NodePath("Managers/CommunicationManager")
+MapManager = NodePath("Managers/MapManager")
+EntityManager = NodePath("Managers/EntityManager")
+JsonMapConfigFilePath = "res://resources/map_config.json"
 
 [node name="Managers" type="Node3D" parent="."]
 
@@ -22,8 +25,8 @@ ServerName = "jabbers.one"
 UserName = "edblase"
 Password = "6@GBcCqggzER@Gt"
 
-[node name="AvatarManager" type="Node" parent="Managers"]
-script = ExtResource("2_sm3fg")
+[node name="EntityManager" type="Node" parent="Managers"]
+script = ExtResource("3_7qgjf")
 
 [node name="MapManager" type="Node" parent="Managers" node_paths=PackedStringArray("groundBody")]
 script = ExtResource("3_gwqqm")
