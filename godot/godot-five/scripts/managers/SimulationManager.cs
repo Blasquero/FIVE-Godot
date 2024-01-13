@@ -10,8 +10,8 @@ public partial class SimulationManager : Node
     [ExportCategory("Configuration files")] [Export]
     private string JsonMapConfigFilePath;
     
-    private static MapConfigurationData mapConfigData;
-    public static ref MapConfigurationData GetMapConfigurationData() => ref mapConfigData;
+    private static MapConfiguration mapConfigData;
+    public static ref MapConfiguration GetMapConfigurationData() => ref mapConfigData;
     
     #region Godot Overrides
     
@@ -34,11 +34,13 @@ public partial class SimulationManager : Node
     //Parse the map info from the JSON file and send the info to the relevant managers
     private bool ParseJSONMapConfigInfo()
     {
-        mapConfigData = Utilities.Files.ParseJsonFile<MapConfigurationData>(JsonMapConfigFilePath, out Error outError);
+        mapConfigData = Utilities.Files.ParseJsonFile<MapConfiguration>(JsonMapConfigFilePath, out Error outError);
         if (outError != Error.Ok)
         {
             return false;
         }
+        mapConfigData.InitLetterToPrefabMapping();
+        mapConfigData.ArrayLetterToPrefabMapping();
 
         Utilities.Math.OrientVector3(ref mapConfigData.origin);
         EntityManager.SetMapConfigurationData(ref mapConfigData);

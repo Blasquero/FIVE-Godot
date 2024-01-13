@@ -58,7 +58,7 @@ namespace Utilities
 
     public static class ConfigData
     {
-        public static ref MapConfigurationData GetMapConfigurationData()
+        public static ref MapConfiguration GetMapConfigurationData()
         {
             return ref SimulationManager.GetMapConfigurationData();
         }

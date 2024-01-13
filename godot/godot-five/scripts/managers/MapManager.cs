@@ -156,7 +156,7 @@ public partial class MapManager : Node
             return;
         }
         
-        MapConfigurationData mapConfigData = Utilities.ConfigData.GetMapConfigurationData();
+        MapConfiguration mapConfigData = Utilities.ConfigData.GetMapConfigurationData();
         Vector2 mapSize = mapInfo.GetMapSize();
         var newGroundScale = new Vector3(mapSize.X * mapConfigData.distance.X, GroundBody.Scale.Y, mapSize.Y * mapConfigData.distance.Y);
         GroundBody.Scale = newGroundScale;
@@ -164,7 +164,7 @@ public partial class MapManager : Node
 
     private void AlignMapToOrigin()
     {
-        MapConfigurationData mapConfigData = Utilities.ConfigData.GetMapConfigurationData();
+        MapConfiguration mapConfigData = Utilities.ConfigData.GetMapConfigurationData();
         Vector2 mapSize = mapInfo.GetMapSize();
         Vector3 newGroundPosition =
             mapConfigData.origin + new Vector3(GroundBody.Scale.X / 2, 0, GroundBody.Scale.Z / 2);

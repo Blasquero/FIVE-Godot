@@ -18,8 +18,8 @@ public partial class EntityManager : Node
     [Signal]
     public delegate void OnMapPopulationFinishedEventHandler(int populationResult);
 
-    private MapConfigurationData mapConfigData = null;
-    public void SetMapConfigurationData(ref MapConfigurationData newMapConfigData) => mapConfigData = newMapConfigData;
+    private MapConfiguration mapConfigData = null;
+    public void SetMapConfigurationData(ref MapConfiguration newMapConfigData) => mapConfigData = newMapConfigData;
     
     public void StartMapPopulation(in MapInfo mapInfo)
     {

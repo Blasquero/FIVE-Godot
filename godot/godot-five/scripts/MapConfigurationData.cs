@@ -9,7 +9,7 @@ public class SymbolPrefabPair
 
     private const string godotDataFolder = "res://scenes/prefabs/";
 
-    public SymbolPrefabPair(){}
+   public SymbolPrefabPair(){}
    public  SymbolPrefabPair(KeyValuePair<string, SymbolPrefabPair> dictionaryEntry)
    {
        symbol = dictionaryEntry.Key;
@@ -18,21 +18,29 @@ public class SymbolPrefabPair
        ParseDataFolder();
    }
 
-   private void ParseDataFolder()
+   public void ParseDataFolder()
    {
-       //TODO: This is hardcoded as shit and it's gonna be an error party
+       if (dataFolder == null)
+       {
+           return;
+       }
+       
+       //TODO: This is hardcoded as shit and it's gonna cause a lot of errors
        string unityDataFolder = dataFolder;
        string pathFolder = unityDataFolder.TrimPrefix("../../release/windows-server/");
-       string prefabDataFolder = godotDataFolder + pathFolder;
-       dataFolder = godotDataFolder +prefabDataFolder;
+       dataFolder = godotDataFolder + pathFolder + ".tscn";
+       if (!ResourceLoader.Exists(dataFolder))
+       {
+           GD.PushError($"Prefab {prefabName} not found on {dataFolder}");
+       }
    }
 }
 
-public class MapConfigurationData
+public class MapConfiguration
 {
     public Vector3 origin;
     public Vector2 distance;
-    private SymbolPrefabPair[] symbolToPrefabMap;
+    public SymbolPrefabPair[] symbolToPrefabMap;
     private Dictionary<string, SymbolPrefabPair> symbolToPrefabMapping;
     // private string[] keyLetterToPrefabMapping;
     // private string[] valueLetterToPrefabMapping;
@@ -40,25 +48,29 @@ public class MapConfigurationData
     public void InitLetterToPrefabMapping() {
         symbolToPrefabMapping = new Dictionary<string, SymbolPrefabPair>();
         for(int i = 0; i < symbolToPrefabMap.Length; i++) {
-            string key = symbolToPrefabMap[i].symbol;
-            SymbolPrefabPair value = symbolToPrefabMap[i];
+            var key = symbolToPrefabMap[i].symbol;
+            var value = symbolToPrefabMap[i];
             symbolToPrefabMapping.Add(key, value);
+            value.ParseDataFolder();
         }
     }
 
     public void ArrayLetterToPrefabMapping() {
         symbolToPrefabMap = new SymbolPrefabPair[symbolToPrefabMapping.Count];
         int i = 0;
-        foreach (KeyValuePair<string, SymbolPrefabPair> pair in symbolToPrefabMapping)
-        {
-            var symbolPrefabPair = new SymbolPrefabPair(pair);
+        foreach (KeyValuePair<string, SymbolPrefabPair> pair in symbolToPrefabMapping) {
+            var symbolPrefabPair = new SymbolPrefabPair {
+                symbol = pair.Key,
+                prefabName = pair.Value.prefabName,
+                dataFolder = pair.Value.dataFolder
+            };
             symbolToPrefabMap[i] = symbolPrefabPair;
             i++;
         }
     }
 
     public Dictionary<string, SymbolPrefabPair> SymbolToPrefabMapping {
-        get => symbolToPrefabMapping;
-        set => symbolToPrefabMapping = value;
+        get { return symbolToPrefabMapping; }
+        set { symbolToPrefabMapping = value; }
     }
 }

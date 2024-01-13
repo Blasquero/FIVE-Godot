@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3 uid="uid://c8fmikywogpwd"]
+
+[ext_resource type="Script" path="res://scripts/DummyEntity.cs" id="1_hplgh"]
+
+[node name="DummyEntity" type="Node3D"]
+script = ExtResource("1_hplgh")
+
+[node name="Label3D" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
+text = "HOLA HOLA"

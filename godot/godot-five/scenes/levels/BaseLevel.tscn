@@ -34,10 +34,10 @@ TestingLabel = NodePath("../../CommunicationTestingLabel3d")
 script = ExtResource("3_7qgjf")
 spawnerResource = ExtResource("4_g0klb")
 
-[node name="MapManager" type="Node" parent="Managers" node_paths=PackedStringArray("groundBody")]
+[node name="MapManager" type="Node" parent="Managers" node_paths=PackedStringArray("GroundBody")]
 script = ExtResource("3_gwqqm")
 PathToTextFile = "res://resources/map.txt"
-groundBody = NodePath("../../Ground")
+GroundBody = NodePath("../../Ground")
 
 [node name="Camera" parent="." instance=ExtResource("4_syuy5")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.17971, 0)
