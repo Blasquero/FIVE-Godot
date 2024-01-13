@@ -42,8 +42,9 @@ public readonly struct MapInfo
 public partial class MapManager : Node
 {
     [ExportGroup("Map Configuration")] 
-    [Export] private string PathToTextFile;
-    [Export] private StaticBody3D groundBody;
+    [Export] private string PathToTextFile = "";
+    [Export] private StaticBody3D GroundBody = null;
+    [Export] private bool AdaptGroundSize = false;
 
     //Signals can only use Variant types, so we need to send it as an int and cast it on the signal handler
     //More info: https://docs.godotengine.org/en/stable/tutorials/scripting/c_sharp/c_sharp_variant.html#variant-compatible-types
@@ -73,7 +74,11 @@ public partial class MapManager : Node
         }
 
         ResizeGround();
-        AlignMapToOrigin();
+        if (AdaptGroundSize)
+        {
+            AlignMapToOrigin();
+        }
+        
         EmitSignal(SignalName.OnMapGenerated, (int)MapGenerationError.OK);
     }
 
@@ -145,10 +150,16 @@ public partial class MapManager : Node
 
     private void ResizeGround()
     {
+        if (!AdaptGroundSize)
+        {
+            GroundBody.Scale = new Vector3(500, GroundBody.Scale.Y, 500);
+            return;
+        }
+        
         MapConfigurationData mapConfigData = Utilities.ConfigData.GetMapConfigurationData();
         Vector2 mapSize = mapInfo.GetMapSize();
-        var newGroundScale = new Vector3(mapSize.X * mapConfigData.distance.X, groundBody.Scale.Y, mapSize.Y * mapConfigData.distance.Y);
-        groundBody.Scale = newGroundScale;
+        var newGroundScale = new Vector3(mapSize.X * mapConfigData.distance.X, GroundBody.Scale.Y, mapSize.Y * mapConfigData.distance.Y);
+        GroundBody.Scale = newGroundScale;
     }
 
     private void AlignMapToOrigin()
@@ -156,9 +167,9 @@ public partial class MapManager : Node
         MapConfigurationData mapConfigData = Utilities.ConfigData.GetMapConfigurationData();
         Vector2 mapSize = mapInfo.GetMapSize();
         Vector3 newGroundPosition =
-            mapConfigData.origin + new Vector3(groundBody.Scale.X / 2, 0, groundBody.Scale.Z / 2);
-        groundBody.Position = newGroundPosition;
+            mapConfigData.origin + new Vector3(GroundBody.Scale.X / 2, 0, GroundBody.Scale.Z / 2);
+        GroundBody.Position = newGroundPosition;
         //Adding some padding so the map is slightly larger than the field we are representing
-        groundBody.Scale = groundBody.Scale * new Vector3(1.2f, 1f, 1.2f);
+        GroundBody.Scale = GroundBody.Scale * new Vector3(1.2f, 1f, 1.2f);
     }
 }
