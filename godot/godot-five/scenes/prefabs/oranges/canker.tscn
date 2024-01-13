@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/DummyEntity.cs" id="1_8alj8"]
 
-[node name="DummyEntity" type="Node3D"]
+[node name="Canker" type="Node3D"]
 script = ExtResource("1_8alj8")
 
 [node name="Label3D" type="Label3D" parent="."]
