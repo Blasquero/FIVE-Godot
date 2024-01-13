@@ -1,9 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://bfpeovq4wb0dw"]
-
-[ext_resource type="Script" path="res://scripts/managers/XMPPCommunicationManager.cs" id="1_3buhv"]
-
-[node name="CommunicationManager" type="Node2D"]
-script = ExtResource("1_3buhv")
-ServerName = "jabbers.one"
-UserName = "edblaseTest1"
-Password = "BD7ehX@UE2SURsQ"

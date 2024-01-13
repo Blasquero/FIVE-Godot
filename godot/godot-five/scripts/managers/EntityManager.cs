@@ -11,10 +11,15 @@ public enum MapPopulationError
 
 public partial class EntityManager : Node
 {
-    private static readonly EntityManager instance = new EntityManager();
-
+    [ExportGroup("Base Prefabs")] 
+    [Export] private Resource spawnerResource;
+    [Export] private Resource treeResource;
+    
     [Signal]
     public delegate void OnMapPopulationFinishedEventHandler(int populationResult);
+
+    private MapConfigurationData mapConfigData = null;
+    public void SetMapConfigurationData(ref MapConfigurationData newMapConfigData) => mapConfigData = newMapConfigData;
     
     public void StartMapPopulation(in MapInfo mapInfo)
     {

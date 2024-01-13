@@ -1,9 +1,4 @@
-using System.Collections.Generic;
-using System.Text.Json.Serialization;
 using Godot;
-using Newtonsoft.Json;
-
-
 
 public partial class SimulationManager : Node
 {
@@ -11,18 +6,24 @@ public partial class SimulationManager : Node
     [Export] private XMPPCommunicationManager CommunicationManager;
     [Export] private MapManager MapManager;
     [Export] private EntityManager EntityManager;
-
+    
     [ExportCategory("Configuration files")] [Export]
     private string JsonMapConfigFilePath;
     
+    private static MapConfigurationData mapConfigData;
+    public static ref MapConfigurationData GetMapConfigurationData() => ref mapConfigData;
     
     #region Godot Overrides
     
     public override void _Ready()
     {
+        CommunicationManager.StartXMPPClient();
 
-        ParseJSONMapConfigInfo();
-        return;
+        if (!ParseJSONMapConfigInfo())
+        {
+            return;
+        }
+        
         MapManager.OnMapGenerated += OnMapGenerated;
         GD.Print("Starting map generation");
         MapManager.StartMapGeneration();
@@ -30,29 +31,19 @@ public partial class SimulationManager : Node
     
     #endregion
 
-    //Parse the map info from the JSON file and send it to the relevant managers
-    private void ParseJSONMapConfigInfo()
+    //Parse the map info from the JSON file and send the info to the relevant managers
+    private bool ParseJSONMapConfigInfo()
     {
-        if (!FileAccess.FileExists(JsonMapConfigFilePath))
+        mapConfigData = Utilities.Files.ParseJsonFile<MapConfigurationData>(JsonMapConfigFilePath, out Error outError);
+        if (outError != Error.Ok)
         {
-            GD.PushError($"Error: File {JsonMapConfigFilePath} doesn't exist");
-            return;
-        }
-        
-        FileAccess mapFileAccess = FileAccess.Open(JsonMapConfigFilePath, FileAccess.ModeFlags.Read);
-        Error openingError = mapFileAccess.GetError();
-       
-        if (openingError != Error.Ok)
-        {
-            return;
+            return false;
         }
 
-        string fileContents = mapFileAccess.GetAsText();
-        var mapConfiguration = JsonConvert.DeserializeObject<MapConfiguration>(fileContents);
-        Utilities.Math.OrientVector3(ref mapConfiguration.origin);
-        MapManager.SetMapOrigin(mapConfiguration.origin);
+        Utilities.Math.OrientVector3(ref mapConfigData.origin);
+        EntityManager.SetMapConfigurationData(ref mapConfigData);
+        return true;
     }
-    
     
     #region Signal Handlers
     
@@ -76,7 +67,6 @@ public partial class SimulationManager : Node
         if ((MapPopulationError)populationResult == MapPopulationError.OK)
         {
             GD.Print("Map populated without issues. Starting communications");
-            CommunicationManager.StartXMPPClient();
         }
         else
         {

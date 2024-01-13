@@ -1,6 +1,8 @@
+#nullable enable
 using Godot;
 using Artalk.Xmpp;
 using Artalk.Xmpp.Im;
+using Newtonsoft.Json;
 
 /*
  * Utility class with static functions regarding communication and messages
@@ -39,11 +41,36 @@ namespace Utilities
             fileContent = mapFileAccess.GetAsText();
             return Error.Ok;
         }
+
+        private static T? ParseJson<T>(string jsonString)
+        {
+            return JsonConvert.DeserializeObject<T>(jsonString);
+        }
+
+        //TODO:Refactor to return the error as a parameter, or else will get the default constructor
+        public static T? ParseJsonFile<T>(string filePath, out Error outError)
+        {
+            outError = GetFileContent(filePath, out string fileContent);
+            return outError != Error.Ok ? default : ParseJson<T>(fileContent);
+        }
+        
     }
 
+    public static class ConfigData
+    {
+        public static ref MapConfigurationData GetMapConfigurationData()
+        {
+            return ref SimulationManager.GetMapConfigurationData();
+        }
+
+        public static ref MapInfo GetMapInfo()
+        {
+            return ref MapManager.GetMapInfo();
+        }
+    }
     public static class Math
     {
-        //Godot is left-handed
+        //Godot is right-handed. Assume that Unity is king and all the vectors we receive are left-handed
         public static void OrientVector3(ref Vector3 vectorToOrient)
         {
             vectorToOrient.Z *= -1;

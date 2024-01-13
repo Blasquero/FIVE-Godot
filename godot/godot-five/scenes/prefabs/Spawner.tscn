@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://brrecn6g1fips"]
+
+[node name="Node3D" type="Node3D"]
+
+[node name="Label3D" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.40961, 0)
+text = "Spawner"

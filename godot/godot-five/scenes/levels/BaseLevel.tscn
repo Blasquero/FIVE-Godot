@@ -1,16 +1,19 @@
-[gd_scene load_steps=8 format=3 uid="uid://ceh7fq83v8g24"]
+[gd_scene load_steps=10 format=3 uid="uid://ceh7fq83v8g24"]
 
 [ext_resource type="Script" path="res://scripts/managers/XMPPCommunicationManager.cs" id="1_0ek47"]
 [ext_resource type="Script" path="res://scripts/managers/SimulationManager.cs" id="1_odr7g"]
 [ext_resource type="Script" path="res://scripts/managers/EntityManager.cs" id="3_7qgjf"]
 [ext_resource type="Script" path="res://scripts/managers/MapManager.cs" id="3_gwqqm"]
+[ext_resource type="PackedScene" uid="uid://brrecn6g1fips" path="res://scenes/prefabs/Spawner.tscn" id="4_g0klb"]
 [ext_resource type="PackedScene" uid="uid://ds0pr0doookum" path="res://scenes/prefabs/Camera.tscn" id="4_syuy5"]
+[ext_resource type="Script" path="res://scripts/testing/MessageTestingLabel.cs" id="7_nyfsv"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_i8bfn"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_86423"]
 
 [node name="Root" type="Node3D" node_paths=PackedStringArray("CommunicationManager", "MapManager", "EntityManager")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0475464, 0, 0)
 script = ExtResource("1_odr7g")
 CommunicationManager = NodePath("Managers/CommunicationManager")
 MapManager = NodePath("Managers/MapManager")
@@ -19,14 +22,17 @@ JsonMapConfigFilePath = "res://resources/map_config.json"
 
 [node name="Managers" type="Node3D" parent="."]
 
-[node name="CommunicationManager" type="Node" parent="Managers"]
+[node name="CommunicationManager" type="Node" parent="Managers" node_paths=PackedStringArray("TestingLabel")]
 script = ExtResource("1_0ek47")
 ServerName = "jabbers.one"
-UserName = "edblase"
-Password = "6@GBcCqggzER@Gt"
+UserName = "edblaseTest1"
+Password = "BD7ehX@UE2SURsQ"
+TestSendingAndReceiving = true
+TestingLabel = NodePath("../../CommunicationTestingLabel3d")
 
 [node name="EntityManager" type="Node" parent="Managers"]
 script = ExtResource("3_7qgjf")
+spawnerResource = ExtResource("4_g0klb")
 
 [node name="MapManager" type="Node" parent="Managers" node_paths=PackedStringArray("groundBody")]
 script = ExtResource("3_gwqqm")
@@ -37,10 +43,15 @@ groundBody = NodePath("../../Ground")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.17971, 0)
 
 [node name="Ground" type="StaticBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.50834, 0)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Ground"]
 shape = SubResource("BoxShape3D_i8bfn")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Ground"]
 mesh = SubResource("BoxMesh_86423")
+
+[node name="CommunicationTestingLabel3d" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.25079, -3.08252)
+text = "Communication Testing Label
+"
+script = ExtResource("7_nyfsv")
