@@ -9,7 +9,7 @@ class InformBehaviour(spade.behaviour.OneShotBehaviour):
         message.set_metadata("performative", "inform")
         message.set_metadata("ontology", "myOntology")
         message.set_metadata("language", "OWL-S")
-        message.body = "Hello mudafucka"
+        message.body = "Hello Godot, how are you?"
 
         await self.send(message)
         print("Message sent")
@@ -24,7 +24,7 @@ class ReceiverBehaviour(spade.behaviour.OneShotBehaviour):
 
             message = await self.receive(1000)
             if message:
-                print("Message received with content :{}".format(message.body))
+                print("Message received with content: {}".format(message.body))
             else:
                 print("No message received")
 

@@ -1,13 +1,9 @@
 using Godot;
-using System;
 
 public partial class DummyEntity : Node3D
 {
-
     #region Godot overrides
 
-    
-    
     public override void _Ready()
     {
         var childrenLabel = GetChild(0) as Label3D;

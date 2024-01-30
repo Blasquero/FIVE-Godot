@@ -47,7 +47,6 @@ namespace Utilities
             return JsonConvert.DeserializeObject<T>(jsonString);
         }
 
-        //TODO:Refactor to return the error as a parameter, or else will get the default constructor
         public static T? ParseJsonFile<T>(string filePath, out Error outError)
         {
             outError = GetFileContent(filePath, out string fileContent);

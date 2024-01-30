@@ -10,7 +10,7 @@ public class SymbolPrefabPair
     private const string godotDataFolder = "res://scenes/prefabs/";
 
    public SymbolPrefabPair(){}
-   public  SymbolPrefabPair(KeyValuePair<string, SymbolPrefabPair> dictionaryEntry)
+   public SymbolPrefabPair(KeyValuePair<string, SymbolPrefabPair> dictionaryEntry)
    {
        symbol = dictionaryEntry.Key;
        prefabName = dictionaryEntry.Value.prefabName;
@@ -25,7 +25,7 @@ public class SymbolPrefabPair
            return;
        }
        
-       //TODO: This is hardcoded as shit and it's gonna cause a lot of errors
+       //TODO: This is hardcoded as shit and it's gonna cause a lot of errors -> Create a config folder to hold the unity and godot path
        string unityDataFolder = dataFolder;
        string pathFolder = unityDataFolder.TrimPrefix("../../release/windows-server/");
        dataFolder = godotDataFolder + pathFolder + ".tscn";

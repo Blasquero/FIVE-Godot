@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://dy8mudoj63jxy"]
 
-[ext_resource type="Script" path="res://scripts/DummyEntity.cs" id="1_pidwv"]
+[ext_resource type="Script" path="res://scripts/testing/DummyEntity.cs" id="1_pidwv"]
 
 [node name="Healthy" type="Node3D"]
 script = ExtResource("1_pidwv")

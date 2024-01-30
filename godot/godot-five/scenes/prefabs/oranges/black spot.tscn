@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://c8fmikywogpwd"]
 
-[ext_resource type="Script" path="res://scripts/DummyEntity.cs" id="1_hplgh"]
+[ext_resource type="Script" path="res://scripts/testing/DummyEntity.cs" id="1_hplgh"]
 
 [node name="Black Spot" type="Node3D"]
 script = ExtResource("1_hplgh")

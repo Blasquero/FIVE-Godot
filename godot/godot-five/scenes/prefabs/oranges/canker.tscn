@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://4er0vs0gxwpr"]
 
-[ext_resource type="Script" path="res://scripts/DummyEntity.cs" id="1_8alj8"]
+[ext_resource type="Script" path="res://scripts/testing/DummyEntity.cs" id="1_8alj8"]
 
 [node name="Canker" type="Node3D"]
 script = ExtResource("1_8alj8")

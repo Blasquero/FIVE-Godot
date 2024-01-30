@@ -31,7 +31,6 @@ public partial class SimulationManager : Node
     
     #endregion
 
-    //Parse the map info from the JSON file and send the info to the relevant managers
     private bool ParseJSONMapConfigInfo()
     {
         mapConfigData = Utilities.Files.ParseJsonFile<MapConfiguration>(JsonMapConfigFilePath, out Error outError);
@@ -43,7 +42,6 @@ public partial class SimulationManager : Node
         mapConfigData.ArrayLetterToPrefabMapping();
 
         Utilities.Math.OrientVector3(ref mapConfigData.origin);
-        EntityManager.SetMapConfigurationData(ref mapConfigData);
         return true;
     }
     
@@ -55,12 +53,11 @@ public partial class SimulationManager : Node
         {
             GD.Print("Map Generated without issues. Starting map population");
             EntityManager.OnMapPopulationFinished += OnMapPopulationFinished;
-            MapInfo mapInfo = MapManager.GetMapInfo();
-            EntityManager.StartMapPopulation(mapInfo);
+            EntityManager.StartMapPopulation();
         }
         else
         {
-            GD.PrintErr($"Map generation failed with errors {((MapGenerationError)generationResult).ToString()} ");
+            GD.PushError($"Map generation failed with errors {((MapGenerationError)generationResult).ToString()} ");
         }
     }
 
@@ -72,7 +69,7 @@ public partial class SimulationManager : Node
         }
         else
         {
-            GD.PrintErr($"Map population failed with error {((MapPopulationError)populationResult).ToString()}");
+            GD.PushError($"Map population failed with error {((MapPopulationError)populationResult).ToString()}");
         }
     }
     #endregion

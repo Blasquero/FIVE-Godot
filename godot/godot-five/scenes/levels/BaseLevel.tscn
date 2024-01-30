@@ -1,10 +1,9 @@
-[gd_scene load_steps=10 format=3 uid="uid://ceh7fq83v8g24"]
+[gd_scene load_steps=9 format=3 uid="uid://ceh7fq83v8g24"]
 
 [ext_resource type="Script" path="res://scripts/managers/XMPPCommunicationManager.cs" id="1_0ek47"]
 [ext_resource type="Script" path="res://scripts/managers/SimulationManager.cs" id="1_odr7g"]
 [ext_resource type="Script" path="res://scripts/managers/EntityManager.cs" id="3_7qgjf"]
 [ext_resource type="Script" path="res://scripts/managers/MapManager.cs" id="3_gwqqm"]
-[ext_resource type="PackedScene" uid="uid://brrecn6g1fips" path="res://scenes/prefabs/Spawner.tscn" id="4_g0klb"]
 [ext_resource type="PackedScene" uid="uid://ds0pr0doookum" path="res://scenes/prefabs/Camera.tscn" id="4_syuy5"]
 [ext_resource type="Script" path="res://scripts/testing/MessageTestingLabel.cs" id="7_nyfsv"]
 
@@ -32,7 +31,6 @@ TestingLabel = NodePath("../../CommunicationTestingLabel3d")
 
 [node name="EntityManager" type="Node" parent="Managers"]
 script = ExtResource("3_7qgjf")
-spawnerResource = ExtResource("4_g0klb")
 
 [node name="MapManager" type="Node" parent="Managers" node_paths=PackedStringArray("GroundBody")]
 script = ExtResource("3_gwqqm")

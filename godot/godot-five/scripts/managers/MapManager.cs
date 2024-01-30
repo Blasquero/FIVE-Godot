@@ -26,9 +26,9 @@ public readonly struct MapInfo
     private readonly char[,] mapSymbolMatrix;
     public char[,] GetMapSymbolMatrix() => mapSymbolMatrix;
     
-  public MapInfo(Vector2I mapSize, in char[,] mapSymbolMatrix)
+  public MapInfo(in char[,] mapSymbolMatrix)
     {
-        this.mapSize = mapSize;
+        this.mapSize = new Vector2I(mapSymbolMatrix.GetLength(0), mapSymbolMatrix.GetLength(1));
         this.mapSymbolMatrix = mapSymbolMatrix;
     }
 }
@@ -36,14 +36,13 @@ public readonly struct MapInfo
 // Class in charge of parsing the map information from the map text file and scaling the ground
 /*
  * TODO: look into turning this async?
- * TODO: Move map population to a different class?
  */
 
 public partial class MapManager : Node
 {
     [ExportGroup("Map Configuration")] 
     [Export] private string PathToTextFile = "";
-    [Export] private StaticBody3D GroundBody = null;
+    [Export(PropertyHint.NodeType,"StaticBody3D")] private StaticBody3D GroundBody = null;
     [Export] private bool AdaptGroundSize = false;
 
     //Signals can only use Variant types, so we need to send it as an int and cast it on the signal handler
@@ -112,10 +111,9 @@ public partial class MapManager : Node
             return false;
         }
         
+       
         //Remove empty spaces 
-        string cleanFileText = fileContents.Replace(" ", "");
-
-        SplitMapInfo(cleanFileText, out List<string> listInfo);
+        SplitMapInfo(fileContents, out List<string> listInfo);
         
         StoreMapInfo(listInfo);
        
@@ -144,7 +142,7 @@ public partial class MapManager : Node
             }
         }
         
-        mapInfo = new MapInfo(mapSize, symbolMap);
+        mapInfo = new MapInfo(symbolMap);
     }
     #endregion
 
@@ -165,7 +163,6 @@ public partial class MapManager : Node
     private void AlignMapToOrigin()
     {
         MapConfiguration mapConfigData = Utilities.ConfigData.GetMapConfigurationData();
-        Vector2 mapSize = mapInfo.GetMapSize();
         Vector3 newGroundPosition =
             mapConfigData.origin + new Vector3(GroundBody.Scale.X / 2, 0, GroundBody.Scale.Z / 2);
         GroundBody.Position = newGroundPosition;
