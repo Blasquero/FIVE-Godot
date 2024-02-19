@@ -19,16 +19,16 @@ class InformBehaviour(spade.behaviour.OneShotBehaviour):
 
 class ReceiverBehaviour(spade.behaviour.OneShotBehaviour):
 
-        async def run(self):
-            print("Receiver Behaviour Running")
+    async def run(self):
+        print("Receiver Behaviour Running")
 
-            message = await self.receive(1000)
-            if message:
-                print("Message received with content: {}".format(message.body))
-            else:
-                print("No message received")
+        message = await self.receive(1000)
+        if message:
+            print("Message received with content: {}".format(message.body))
+        else:
+            print("No message received")
 
-            await self.agent.stop()
+        await self.agent.stop()
 
 
 class ReceiverSenderAgent(spade.agent.Agent):

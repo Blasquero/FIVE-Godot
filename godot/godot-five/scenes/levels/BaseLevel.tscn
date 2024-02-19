@@ -8,8 +8,10 @@
 [ext_resource type="Script" path="res://scripts/testing/MessageTestingLabel.cs" id="7_nyfsv"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_i8bfn"]
+size = Vector3(500, 1, 500)
 
 [sub_resource type="BoxMesh" id="BoxMesh_86423"]
+size = Vector3(500, 1, 500)
 
 [node name="Root" type="Node3D" node_paths=PackedStringArray("CommunicationManager", "MapManager", "EntityManager")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0475464, 0, 0)
@@ -29,8 +31,13 @@ Password = "BD7ehX@UE2SURsQ"
 TestSendingAndReceiving = true
 TestingLabel = NodePath("../../CommunicationTestingLabel3d")
 
-[node name="EntityManager" type="Node" parent="Managers"]
+[node name="EntityManager" type="Node" parent="Managers" node_paths=PackedStringArray("Ground")]
 script = ExtResource("3_7qgjf")
+Ground = NodePath("../../Ground")
+BasePrefabs = {
+"A": "res://scenes/prefabs/Spawner.tscn",
+"T": "res://scenes/prefabs/Tree.tscn"
+}
 
 [node name="MapManager" type="Node" parent="Managers" node_paths=PackedStringArray("GroundBody")]
 script = ExtResource("3_gwqqm")

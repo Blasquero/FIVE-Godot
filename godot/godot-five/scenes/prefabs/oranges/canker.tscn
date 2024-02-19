@@ -1,10 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://4er0vs0gxwpr"]
-
-[ext_resource type="Script" path="res://scripts/testing/DummyEntity.cs" id="1_8alj8"]
+[gd_scene format=3 uid="uid://4er0vs0gxwpr"]
 
 [node name="Canker" type="Node3D"]
-script = ExtResource("1_8alj8")
 
 [node name="Label3D" type="Label3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
-text = "HOLA HOLA"
+text = "CANKER"

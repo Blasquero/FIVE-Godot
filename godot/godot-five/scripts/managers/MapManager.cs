@@ -150,7 +150,7 @@ public partial class MapManager : Node
     {
         if (!AdaptGroundSize)
         {
-            GroundBody.Scale = new Vector3(500, GroundBody.Scale.Y, 500);
+           // GroundBody.Scale = new Vector3(500, GroundBody.Scale.Y, 500);
             return;
         }
         
@@ -160,6 +160,7 @@ public partial class MapManager : Node
         GroundBody.Scale = newGroundScale;
     }
 
+    
     private void AlignMapToOrigin()
     {
         MapConfiguration mapConfigData = Utilities.ConfigData.GetMapConfigurationData();

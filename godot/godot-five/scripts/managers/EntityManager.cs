@@ -1,5 +1,7 @@
+using System;
 using System.Diagnostics;
 using Godot;
+using Godot.Collections;
 
 /*
  * Class in charge of managing entities on the map, spawning and assigning them to agents
@@ -27,56 +29,73 @@ public partial class EntityManager : Node
 
     private MapConfiguration mapConfigData = null;
     private MapInfo mapLayout;
+
+    [Export] private Node3D Ground;
     
-    
+    //TODO: Check about turning this into a resource
+    [Export] private Dictionary<string, string> BasePrefabs;
+
     public void StartMapPopulation()
     {
         mapConfigData = Utilities.ConfigData.GetMapConfigurationData();
         mapLayout = Utilities.ConfigData.GetMapInfo();
         if (mapConfigData == null || mapLayout.GetMapSize() == Vector2I.Zero)
         {
-            // Log error
+            //TODO: Log error
             EmitSignal(SignalName.OnMapPopulationFinished, (int)MapPopulationError.CantAccessConfigData);
         }
 
-        //Start parsing the matrix of entities and spawning
-
-        //---------------UNTESTED CODE-----------//
         char[,] mapEntities = mapLayout.GetMapSymbolMatrix();
-        
-        for (int x = 0; x < mapEntities.GetLength(0); x++)
+        for (int x = 0; x < mapEntities.GetLength(0); ++x)
         {
             for (int y = 0; y < mapEntities.GetLength(1); ++y)
             {
-                string entitySymbol = mapEntities[x, y].ToString();
-                if (entitySymbol == " ")
+                char entityChar = mapEntities[x, y];
+                if (entityChar == ' ')
                 {
-                    //Skip empty spaces
+                    //Skipping empty spaces
                     continue;
                 }
-                
-                if (!mapConfigData.SymbolToPrefabMapping.ContainsKey(entitySymbol))
+                Vector3 entityLocation = CalculateEntityLocation(x,y);
+                string entityPath = GetEntityPath(entityChar, out bool pathFound);
+                if (!pathFound || entityPath == null)
                 {
-                    GD.PrintErr($"Found entity symbol {entitySymbol} without an associated prefab");
-                    EmitSignal(SignalName.OnMapPopulationFinished, (int)MapPopulationError.MissingSymbol);
+                    //TODO: Log Error
                     continue;
                 }
-
-                string prefabFolder = mapConfigData.SymbolToPrefabMapping[entitySymbol].dataFolder;
-              
-                //TODO: Handle prefabs without data folder (spawner, tractor)
-                Vector2 offset = new Vector2(x, y) * mapConfigData.distance;
-                Vector3 entityLocation = mapConfigData.origin + new Vector3(offset.X, 0, -offset.Y);
-                Node3D newInstance = SpawnNewEntity(prefabFolder, entityLocation);
-                if (newInstance == null)
-                {
-                    GD.PrintErr($"Could not create entity of type {prefabFolder}");
-                    EmitSignal(SignalName.OnMapPopulationFinished, (int)MapPopulationError.EntityNotCreated);
-                }
+                SpawnNewEntity(entityPath, entityLocation);
             }
         }
-        
+
         EmitSignal(SignalName.OnMapPopulationFinished, (int)MapPopulationError.OK);
+    }
+
+    private Vector3 CalculateEntityLocation(int x, int y)
+    {
+        Vector2 offset = new Vector2(x, y) * mapConfigData.distance;
+        Vector3 entityLocation = mapConfigData.origin + new Vector3(offset.X, 0, -offset.Y);
+        return entityLocation;
+    }
+
+    private string GetEntityPath(char symbolChar, out bool pathFound)
+    {
+        string entityPath;
+        if (BasePrefabs.ContainsKey(symbolChar.ToString()))
+        {
+            entityPath = BasePrefabs[symbolChar.ToString()];
+            pathFound = (entityPath != null);
+            return entityPath;
+        }
+        if (!mapConfigData.SymbolToPrefabMapping.ContainsKey(symbolChar.ToString()))
+        {
+            pathFound = false;
+            return string.Empty;
+        }
+        
+        entityPath = mapConfigData.SymbolToPrefabMapping[symbolChar.ToString()].dataFolder;
+        pathFound = (entityPath != null);
+        return entityPath;
+        
     }
     
     private Node3D SpawnNewEntity(string entityPath, Vector3 entityLocation)
@@ -87,8 +106,12 @@ public partial class EntityManager : Node
         {
             return null;
         }
-        instance.Position = entityLocation;
-        //Attachear la instance al suelo?
+
+        Ground.AddChild(instance);
+        instance.GlobalPosition = entityLocation;
+        instance.Scale = Ground.Scale;
+        Ground.AddChild(instance);
+        
         return instance;
     }
 }
