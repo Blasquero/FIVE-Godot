@@ -21,9 +21,12 @@ resource_local_to_scene = true
 material = SubResource("ORMMaterial3D_uub50")
 size = Vector3(500, 1, 500)
 
-[node name="Root" type="Node3D"]
+[node name="Root" type="Node3D" node_paths=PackedStringArray("CommunicationManager", "MapManager", "EntityManager")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0475464, 0, 0)
 script = ExtResource("1_odr7g")
+CommunicationManager = NodePath("Managers/CommunicationManager")
+MapManager = NodePath("Managers/MapManager")
+EntityManager = NodePath("Managers/EntityManager")
 JsonMapConfigFilePath = "res://resources/map_config.json"
 
 [node name="Managers" parent="." instance=ExtResource("2_4vlyc")]
@@ -37,13 +40,6 @@ Ground = NodePath("../../Node3D/NavigationObstacle3D/Ground")
 
 [node name="MapManager" parent="Managers" index="2" node_paths=PackedStringArray("GroundBody")]
 GroundBody = NodePath("../../Node3D/NavigationObstacle3D/Ground")
-
-[node name="SimulationManager" type="Node" parent="Managers" node_paths=PackedStringArray("CommunicationManager", "MapManager", "EntityManager")]
-script = ExtResource("1_odr7g")
-CommunicationManager = NodePath("../CommunicationManager")
-MapManager = NodePath("../MapManager")
-EntityManager = NodePath("../EntityManager")
-JsonMapConfigFilePath = "res://resources/map_config.json"
 
 [node name="CommunicationTestingLabel3d" type="Label3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.25079, -3.08252)
