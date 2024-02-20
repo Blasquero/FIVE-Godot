@@ -1,13 +1,17 @@
 using System.Collections.Generic;
 using Godot;
 
+public class UnityToGodotFolder
+{
+    public string GodotDataFolder;
+    public string UnityDataFolder; 
+}
+
 public class SymbolPrefabPair
 {
     public string symbol;
     public string prefabName;
     public string dataFolder;
-
-    private const string godotDataFolder = "res://scenes/prefabs/";
 
    public SymbolPrefabPair(){}
    public SymbolPrefabPair(KeyValuePair<string, SymbolPrefabPair> dictionaryEntry)
@@ -20,15 +24,15 @@ public class SymbolPrefabPair
 
    public void ParseDataFolder()
    {
+       UnityToGodotFolder foldersConfig = Utilities.ConfigData.GetFoldersConfig();
        if (dataFolder == null)
        {
            return;
        }
        
-       //TODO: This is hardcoded as shit and it's gonna cause a lot of errors -> Create a config folder to hold the unity and godot path
        string unityDataFolder = dataFolder;
-       string pathFolder = unityDataFolder.TrimPrefix("../../release/windows-server/");
-       dataFolder = godotDataFolder + pathFolder + ".tscn";
+       string pathFolder = unityDataFolder.TrimPrefix(foldersConfig.UnityDataFolder);
+       dataFolder = foldersConfig.GodotDataFolder + pathFolder + ".tscn";
        if (!ResourceLoader.Exists(dataFolder))
        {
            GD.PushError($"Prefab {prefabName} not found on {dataFolder}");

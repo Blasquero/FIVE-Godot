@@ -28,6 +28,7 @@ CommunicationManager = NodePath("Managers/CommunicationManager")
 MapManager = NodePath("Managers/MapManager")
 EntityManager = NodePath("Managers/EntityManager")
 JsonMapConfigFilePath = "res://resources/map_config.json"
+GodotUnityFoldersFilePath = "res://resources/folders_config.json"
 
 [node name="Managers" parent="." instance=ExtResource("2_4vlyc")]
 

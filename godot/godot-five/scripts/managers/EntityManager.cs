@@ -35,7 +35,7 @@ public partial class EntityManager : Node
         MapLayout = Utilities.ConfigData.GetMapInfo();
         if (MapConfigData == null || MapLayout.GetMapSize() == Vector2I.Zero)
         {
-            //TODO: Log error
+            GD.PushError("Map config is empty or the map size is 0");
             EmitSignal(SignalName.OnMapPopulationFinished, (int)MapPopulationError.CantAccessConfigData);
         }
 
@@ -54,13 +54,13 @@ public partial class EntityManager : Node
                 string entityPath = GetEntityPath(entityChar, out bool pathFound);
                 if (!pathFound || entityPath == null)
                 {
-                    //TODO: Log Error
+                    GD.PushError($"Found symbol {entityChar} without an associated prefab. Skipping");
                     continue;
                 }
                 Node3D newEntity = SpawnNewEntity(entityPath, entityLocation);
                 if (newEntity ==null)
                 {
-                    //TODO:Log Error
+                    GD.PushError($"Couldn't instantiate scene in path {entityPath} associated to symbol {entityChar}");
                     continue;
                 }
                 Ground.AddChild(newEntity);

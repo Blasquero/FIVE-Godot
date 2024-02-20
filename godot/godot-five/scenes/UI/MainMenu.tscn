@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://cctixl48qhg1t"]
 
-[ext_resource type="Script" path="res://scripts/UI/MainMenu.gd" id="1_yp5pf"]
+[ext_resource type="Script" path="res://scripts/UI/MainMenu.gd" id="1_27n74"]
 
 [node name="MainMenu" type="Control"]
 layout_mode = 3
@@ -13,7 +13,7 @@ offset_right = 1.0
 offset_bottom = 25.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("1_yp5pf")
+script = ExtResource("1_27n74")
 
 [node name="MainLevelButton" type="Button" parent="."]
 layout_mode = 1
