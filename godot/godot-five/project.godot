@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="godot-five"
-run/main_scene="res://scenes/levels/BaseLevel.tscn"
+run/main_scene="res://scenes/levels/testing/NavigationPlayground.tscn"
 config/features=PackedStringArray("4.1", "C#", "Forward Plus")
 config/icon="res://icon.svg"
 
@@ -22,3 +22,7 @@ project/assembly_name="godot-five"
 [editor_plugins]
 
 enabled=PackedStringArray()
+
+[physics]
+
+3d/main_scene="res://scenes/levels/Orchardlevel.tscn"

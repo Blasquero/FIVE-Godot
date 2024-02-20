@@ -5,7 +5,7 @@ using Godot.Collections;
 
 /*
  * Class in charge of managing entities on the map, spawning and assigning them to agents
- * TODO: Check how to store the base prefabs (spawner, tractor, base tree?)
+ * TODO: Look into registering the spawned entities for ease of access/manipulation
  */
 
 public enum MapPopulationError
@@ -16,19 +16,13 @@ public enum MapPopulationError
     EntityNotCreated
 }
 
-public struct BasePrefab
-{
-    public char symbol;
-    public PackedScene PackedScene;
-}
-
 public partial class EntityManager : Node
 {
     [Signal]
     public delegate void OnMapPopulationFinishedEventHandler(int populationResult);
 
-    private MapConfiguration mapConfigData = null;
-    private MapInfo mapLayout;
+    private MapConfiguration MapConfigData = null;
+    private MapInfo MapLayout;
 
     [Export] private Node3D Ground;
     
@@ -37,15 +31,15 @@ public partial class EntityManager : Node
 
     public void StartMapPopulation()
     {
-        mapConfigData = Utilities.ConfigData.GetMapConfigurationData();
-        mapLayout = Utilities.ConfigData.GetMapInfo();
-        if (mapConfigData == null || mapLayout.GetMapSize() == Vector2I.Zero)
+        MapConfigData = Utilities.ConfigData.GetMapConfigurationData();
+        MapLayout = Utilities.ConfigData.GetMapInfo();
+        if (MapConfigData == null || MapLayout.GetMapSize() == Vector2I.Zero)
         {
             //TODO: Log error
             EmitSignal(SignalName.OnMapPopulationFinished, (int)MapPopulationError.CantAccessConfigData);
         }
 
-        char[,] mapEntities = mapLayout.GetMapSymbolMatrix();
+        char[,] mapEntities = MapLayout.GetMapSymbolMatrix();
         for (int x = 0; x < mapEntities.GetLength(0); ++x)
         {
             for (int y = 0; y < mapEntities.GetLength(1); ++y)
@@ -63,7 +57,14 @@ public partial class EntityManager : Node
                     //TODO: Log Error
                     continue;
                 }
-                SpawnNewEntity(entityPath, entityLocation);
+                Node3D newEntity = SpawnNewEntity(entityPath, entityLocation);
+                if (newEntity ==null)
+                {
+                    //TODO:Log Error
+                    continue;
+                }
+                Ground.AddChild(newEntity);
+                newEntity.GlobalPosition = entityLocation;
             }
         }
 
@@ -72,8 +73,8 @@ public partial class EntityManager : Node
 
     private Vector3 CalculateEntityLocation(int x, int y)
     {
-        Vector2 offset = new Vector2(x, y) * mapConfigData.distance;
-        Vector3 entityLocation = mapConfigData.origin + new Vector3(offset.X, 0, -offset.Y);
+        Vector2 offset = new Vector2(x, y) * MapConfigData.distance;
+        Vector3 entityLocation = MapConfigData.origin + new Vector3(offset.X, 0, -offset.Y);
         return entityLocation;
     }
 
@@ -86,13 +87,13 @@ public partial class EntityManager : Node
             pathFound = (entityPath != null);
             return entityPath;
         }
-        if (!mapConfigData.SymbolToPrefabMapping.ContainsKey(symbolChar.ToString()))
+        if (!MapConfigData.SymbolToPrefabMapping.ContainsKey(symbolChar.ToString()))
         {
             pathFound = false;
             return string.Empty;
         }
         
-        entityPath = mapConfigData.SymbolToPrefabMapping[symbolChar.ToString()].dataFolder;
+        entityPath = MapConfigData.SymbolToPrefabMapping[symbolChar.ToString()].dataFolder;
         pathFound = (entityPath != null);
         return entityPath;
         
@@ -102,16 +103,6 @@ public partial class EntityManager : Node
     {
         Debug.Assert(ResourceLoader.Exists(entityPath));
         var instance = ResourceLoader.Load<PackedScene>(entityPath).Instantiate() as Node3D;
-        if (instance == null)
-        {
-            return null;
-        }
-
-        Ground.AddChild(instance);
-        instance.GlobalPosition = entityLocation;
-        instance.Scale = Ground.Scale;
-        Ground.AddChild(instance);
-        
         return instance;
     }
 }

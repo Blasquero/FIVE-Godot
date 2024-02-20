@@ -9,14 +9,13 @@ using Newtonsoft.Json;
  */
 namespace Utilities
 {
-    public static class Messages 
+    public static class Messages
     {
         public static void SendMessage(Jid to, string messageBody)
         {
             var message = new Message(to: to, body: messageBody, type: MessageType.Chat);
             XMPPCommunicationManager.SendMessage(message);
         }
-        
     }
 
     public static class Files
@@ -32,7 +31,7 @@ namespace Utilities
 
             using FileAccess mapFileAccess = FileAccess.Open(pathToFile, FileAccess.ModeFlags.Read);
             Error openingError = mapFileAccess.GetError();
-       
+
             if (openingError != Error.Ok)
             {
                 return openingError;
@@ -52,7 +51,6 @@ namespace Utilities
             outError = GetFileContent(filePath, out string fileContent);
             return outError != Error.Ok ? default : ParseJson<T>(fileContent);
         }
-        
     }
 
     public static class ConfigData
@@ -67,6 +65,7 @@ namespace Utilities
             return ref MapManager.GetMapInfo();
         }
     }
+
     public static class Math
     {
         //Godot is right-handed. Assume that Unity is king and all the vectors we receive are left-handed

@@ -50,11 +50,11 @@ public partial class MapManager : Node
     [Signal]
     public delegate void OnMapGeneratedEventHandler(int mapGenerationError);
     
-    private string mapFileContent;
-    private FileAccess mapFileAccess;
+    private string MapFileContent;
+    private FileAccess MapFileAccess;
 
-    private static MapInfo mapInfo;
-    public static ref MapInfo GetMapInfo() =>  ref mapInfo;
+    private static MapInfo MapInfo;
+    public static ref MapInfo GetMapInfo() =>  ref MapInfo;
 
    public void StartMapGeneration()
     {
@@ -91,8 +91,8 @@ public partial class MapManager : Node
             return false;
         }
         
-        mapFileAccess = FileAccess.Open(PathToTextFile, FileAccess.ModeFlags.Read);
-        Error openingError = mapFileAccess.GetError();
+        MapFileAccess = FileAccess.Open(PathToTextFile, FileAccess.ModeFlags.Read);
+        Error openingError = MapFileAccess.GetError();
        
         if (openingError == Error.Ok)
         {
@@ -142,7 +142,7 @@ public partial class MapManager : Node
             }
         }
         
-        mapInfo = new MapInfo(symbolMap);
+        MapInfo = new MapInfo(symbolMap);
     }
     #endregion
 
@@ -155,7 +155,7 @@ public partial class MapManager : Node
         }
         
         MapConfiguration mapConfigData = Utilities.ConfigData.GetMapConfigurationData();
-        Vector2 mapSize = mapInfo.GetMapSize();
+        Vector2 mapSize = MapInfo.GetMapSize();
         var newGroundScale = new Vector3(mapSize.X * mapConfigData.distance.X, GroundBody.Scale.Y, mapSize.Y * mapConfigData.distance.Y);
         GroundBody.Scale = newGroundScale;
     }

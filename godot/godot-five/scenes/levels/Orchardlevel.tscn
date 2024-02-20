@@ -1,0 +1,45 @@
+[gd_scene load_steps=8 format=3 uid="uid://ceh7fq83v8g24"]
+
+[ext_resource type="Script" path="res://scripts/managers/SimulationManager.cs" id="1_odr7g"]
+[ext_resource type="PackedScene" uid="uid://cscyh5yg47tgh" path="res://scenes/managers.tscn" id="2_4vlyc"]
+[ext_resource type="PackedScene" uid="uid://bn5pjd1q8oc7j" path="res://scenes/levels/BaseLevel.tscn" id="4_5nwed"]
+[ext_resource type="Script" path="res://scripts/testing/MessageTestingLabel.cs" id="7_nyfsv"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_w6538"]
+resource_local_to_scene = true
+size = Vector3(100, 1, 100)
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_uub50"]
+albedo_color = Color(0.811765, 0.6, 0.12549, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_d8htj"]
+resource_local_to_scene = true
+material = SubResource("ORMMaterial3D_uub50")
+size = Vector3(100, 1, 100)
+
+[node name="Root" type="Node3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0475464, 0, 0)
+script = ExtResource("1_odr7g")
+JsonMapConfigFilePath = "res://resources/map_config.json"
+
+[node name="Managers" parent="." instance=ExtResource("2_4vlyc")]
+
+[node name="MapManager" parent="Managers" index="2" node_paths=PackedStringArray("GroundBody")]
+GroundBody = NodePath("../../Node3D/NavigationObstacle3D/Ground")
+
+[node name="CommunicationTestingLabel3d" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.25079, -3.08252)
+text = "Communication Testing Label
+"
+script = ExtResource("7_nyfsv")
+
+[node name="Node3D" parent="." instance=ExtResource("4_5nwed")]
+
+[node name="CollisionShape3D" parent="Node3D/NavigationObstacle3D/Ground" index="0"]
+shape = SubResource("BoxShape3D_w6538")
+
+[node name="MeshInstance3D" parent="Node3D/NavigationObstacle3D/Ground" index="1"]
+mesh = SubResource("BoxMesh_d8htj")
+
+[editable path="Managers"]
+[editable path="Node3D"]
