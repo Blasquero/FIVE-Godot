@@ -5,3 +5,7 @@
 [node name="Label3D" type="Label3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
 text = "HEALTHY"
+
+[node name="NavigationObstacle3D" type="NavigationObstacle3D" parent="."]
+height = 2.08
+vertices = PackedVector3Array(-0.5, 0, -0.5, 0.5, 0, -0.5, 0.5, 0, 0.5, -0.5, 0, 0.5)

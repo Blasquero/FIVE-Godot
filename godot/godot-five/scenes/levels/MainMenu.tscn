@@ -1,0 +1,32 @@
+[gd_scene load_steps=2 format=3 uid="uid://cctixl48qhg1t"]
+
+[ext_resource type="Script" path="res://scenes/levels/MainMenu.gd" id="1_no4x3"]
+
+[node name="MainMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_no4x3")
+
+[node name="Button2" type="Button" parent="."]
+offset_left = 493.0
+offset_top = 272.0
+offset_right = 664.0
+offset_bottom = 308.0
+text = "Pathfinding Test
+"
+
+[node name="Button" type="Button" parent="."]
+layout_mode = 0
+offset_left = 490.0
+offset_top = 200.0
+offset_right = 661.0
+offset_bottom = 236.0
+text = "Main Level
+"
+
+[connection signal="pressed" from="Button2" to="." method="OnPathfindingTestMenu_pressed"]
+[connection signal="pressed" from="Button" to="." method="_on_main_level_buttonpressed"]

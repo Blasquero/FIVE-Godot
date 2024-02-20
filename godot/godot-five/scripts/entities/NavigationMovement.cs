@@ -16,6 +16,7 @@ public partial class NavigationMovement : CharacterBody3D
         {
             NavAgent.VelocityComputed += OnVelocityComputed;
         }
+        SetTargetPosition(new Vector3(40, 0.578f, 0));
     }
 
     public void SetTargetPosition(Vector3 newTargetPosition)
