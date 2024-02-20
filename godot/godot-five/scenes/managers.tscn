@@ -1,0 +1,26 @@
+[gd_scene load_steps=4 format=3 uid="uid://cscyh5yg47tgh"]
+
+[ext_resource type="Script" path="res://scripts/managers/XMPPCommunicationManager.cs" id="1_4iffy"]
+[ext_resource type="Script" path="res://scripts/managers/EntityManager.cs" id="2_ni7dk"]
+[ext_resource type="Script" path="res://scripts/managers/MapManager.cs" id="3_xnhuu"]
+
+[node name="Managers" type="Node3D"]
+
+[node name="CommunicationManager" type="Node" parent="." node_paths=PackedStringArray("TestingLabel")]
+script = ExtResource("1_4iffy")
+ServerName = "jabbers.one"
+UserName = "edblaseTest1"
+Password = "BD7ehX@UE2SURsQ"
+TestSendingAndReceiving = true
+TestingLabel = NodePath("")
+
+[node name="EntityManager" type="Node" parent="."]
+script = ExtResource("2_ni7dk")
+BasePrefabs = {
+"A": "res://scenes/prefabs/Spawner.tscn",
+"T": "res://scenes/prefabs/Tree.tscn"
+}
+
+[node name="MapManager" type="Node" parent="."]
+script = ExtResource("3_xnhuu")
+PathToTextFile = "res://resources/map.txt"

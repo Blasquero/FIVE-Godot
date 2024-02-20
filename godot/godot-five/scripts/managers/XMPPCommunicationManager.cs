@@ -56,7 +56,6 @@ public partial class XMPPCommunicationManager : Node
             GD.PushError($"CommunicationManager::_Ready: Could not connect to server {ServerName}");
         }
 
-        //TestingButton = GetNode<MessageTestingButton>("/root/TestButton");
     }
     
     private void OnNewMessage(object sender, MessageEventArgs messageEventArgs)
