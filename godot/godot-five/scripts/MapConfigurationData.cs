@@ -9,33 +9,34 @@ public class UnityToGodotFolder
 
 public class SymbolPrefabPair
 {
-    public string symbol;
-    public string prefabName;
-    public string dataFolder;
+    public string Symbol;
+    public string PrefabName;
+    public string DataFolder;
 
    public SymbolPrefabPair(){}
    public SymbolPrefabPair(KeyValuePair<string, SymbolPrefabPair> dictionaryEntry)
    {
-       symbol = dictionaryEntry.Key;
-       prefabName = dictionaryEntry.Value.prefabName;
-       dataFolder = dictionaryEntry.Value.dataFolder;
+       Symbol = dictionaryEntry.Key;
+       PrefabName = dictionaryEntry.Value.PrefabName;
+       DataFolder = dictionaryEntry.Value.DataFolder;
        ParseDataFolder();
    }
 
    public void ParseDataFolder()
    {
        UnityToGodotFolder foldersConfig = Utilities.ConfigData.GetFoldersConfig();
-       if (dataFolder == null)
+       if (DataFolder == null)
        {
            return;
        }
        
-       string unityDataFolder = dataFolder;
+       string unityDataFolder = DataFolder;
        string pathFolder = unityDataFolder.TrimPrefix(foldersConfig.UnityDataFolder);
-       dataFolder = foldersConfig.GodotDataFolder + pathFolder + ".tscn";
-       if (!ResourceLoader.Exists(dataFolder))
+       DataFolder = foldersConfig.GodotDataFolder + pathFolder + ".tscn";
+       
+       if (!ResourceLoader.Exists(DataFolder))
        {
-           GD.PushError($"Prefab {prefabName} not found on {dataFolder}");
+           GD.PushError($"Prefab {PrefabName} not found on {DataFolder}");
        }
    }
 }
@@ -52,7 +53,7 @@ public class MapConfiguration
     public void InitLetterToPrefabMapping() {
         symbolToPrefabMapping = new Dictionary<string, SymbolPrefabPair>();
         for(int i = 0; i < symbolToPrefabMap.Length; i++) {
-            var key = symbolToPrefabMap[i].symbol;
+            var key = symbolToPrefabMap[i].Symbol;
             var value = symbolToPrefabMap[i];
             symbolToPrefabMapping.Add(key, value);
             value.ParseDataFolder();
@@ -64,9 +65,9 @@ public class MapConfiguration
         int i = 0;
         foreach (KeyValuePair<string, SymbolPrefabPair> pair in symbolToPrefabMapping) {
             var symbolPrefabPair = new SymbolPrefabPair {
-                symbol = pair.Key,
-                prefabName = pair.Value.prefabName,
-                dataFolder = pair.Value.dataFolder
+                Symbol = pair.Key,
+                PrefabName = pair.Value.PrefabName,
+                DataFolder = pair.Value.DataFolder
             };
             symbolToPrefabMap[i] = symbolPrefabPair;
             i++;

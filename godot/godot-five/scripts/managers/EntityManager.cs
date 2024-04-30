@@ -54,7 +54,7 @@ public partial class EntityManager : Node
                 string entityPath = GetEntityPath(entityChar, out bool pathFound);
                 if (!pathFound || entityPath == null)
                 {
-                    GD.PushError($"Found symbol {entityChar} without an associated prefab. Skipping");
+                    GD.PushError($"Found symbol '{entityChar}' without an associated prefab. Skipping");
                     continue;
                 }
                 Node3D newEntity = SpawnNewEntity(entityPath, entityLocation);
@@ -93,7 +93,7 @@ public partial class EntityManager : Node
             return string.Empty;
         }
         
-        entityPath = MapConfigData.SymbolToPrefabMapping[symbolChar.ToString()].dataFolder;
+        entityPath = MapConfigData.SymbolToPrefabMapping[symbolChar.ToString()].DataFolder;
         pathFound = (entityPath != null);
         return entityPath;
         

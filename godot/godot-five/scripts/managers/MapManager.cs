@@ -111,8 +111,6 @@ public partial class MapManager : Node
             return false;
         }
         
-       
-        //Remove empty spaces 
         SplitMapInfo(fileContents, out List<string> listInfo);
         
         StoreMapInfo(listInfo);
@@ -128,6 +126,10 @@ public partial class MapManager : Node
         //Convert to a list so it's easier to remove empty lines
         listOfLines = arrayLines.ToList();
         listOfLines.RemoveAll(line => line.Length == 0);
+        for (int i = 0; i < listOfLines.Count; i++)
+        {
+            listOfLines[i] = listOfLines[i].TrimEnd('\r', '\n');
+        }
     }
     
     private void StoreMapInfo(in List<string> listStrings)

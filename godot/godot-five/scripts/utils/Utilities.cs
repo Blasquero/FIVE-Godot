@@ -69,15 +69,6 @@ namespace Utilities
         {
             return ref SimulationManager.GetFoldersConfig();
         }
-        public static void ExportDataFolders()
-        {
-            UnityToGodotFolder folders = new UnityToGodotFolder
-            {
-                GodotDataFolder = "res://scenes/prefabs/",
-                UnityDataFolder = "../../release/windows-server/"
-            };
-            string json = JsonConvert.SerializeObject(folders);
-        }
     }
 
     public static class Math

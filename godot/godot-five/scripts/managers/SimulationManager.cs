@@ -13,14 +13,13 @@ public partial class SimulationManager : Node
 
     private static UnityToGodotFolder FoldersConfig;
     public static ref UnityToGodotFolder GetFoldersConfig() => ref FoldersConfig;
-    private static MapConfiguration mapConfigData;
-    public static ref MapConfiguration GetMapConfigurationData() => ref mapConfigData;
+    private static MapConfiguration MapConfigData;
+    public static ref MapConfiguration GetMapConfigurationData() => ref MapConfigData;
 
     #region Godot Overrides
 
     public override void _Ready()
     {
-        Utilities.ConfigData.ExportDataFolders();
         CommunicationManager.StartXMPPClient();
 
         if (!ParseGodotUnityFolders())
@@ -41,16 +40,16 @@ public partial class SimulationManager : Node
 
     private bool ParseJSONMapConfigInfo()
     {
-        mapConfigData = Utilities.Files.ParseJsonFile<MapConfiguration>(JsonMapConfigFilePath, out Error outError);
+        MapConfigData = Utilities.Files.ParseJsonFile<MapConfiguration>(JsonMapConfigFilePath, out Error outError);
         if (outError != Error.Ok)
         {
             return false;
         }
 
-        mapConfigData.InitLetterToPrefabMapping();
-        mapConfigData.ArrayLetterToPrefabMapping();
+        MapConfigData.InitLetterToPrefabMapping();
+        MapConfigData.ArrayLetterToPrefabMapping();
 
-        Utilities.Math.OrientVector3(ref mapConfigData.origin);
+        Utilities.Math.OrientVector3(ref MapConfigData.origin);
         return true;
     }
 
