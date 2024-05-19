@@ -41,7 +41,7 @@ namespace Utilities
             return Error.Ok;
         }
 
-        private static T? ParseJson<T>(string jsonString)
+        public static T? ParseJson<T>(string jsonString)
         {
             return JsonConvert.DeserializeObject<T>(jsonString);
         }

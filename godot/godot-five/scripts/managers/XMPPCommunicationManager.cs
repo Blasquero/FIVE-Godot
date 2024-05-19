@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Godot;
-
 using Artalk.Xmpp.Client;
 using Artalk.Xmpp.Im;
 using MessageEventArgs = Artalk.Xmpp.Im.MessageEventArgs;
@@ -10,110 +9,105 @@ using MessageEventArgs = Artalk.Xmpp.Im.MessageEventArgs;
 /*
  * Class dedicated to manage messages from and to the XMPP server
  */
+
+public class CommandInfo
+{
+	public string commandName;
+	public string[] data;
+}
+
 public partial class XMPPCommunicationManager : Node
 {
+	private static XMPPCommunicationManager instance;
+	public static XMPPCommunicationManager GetInstance() => instance;
 
-    private static XMPPCommunicationManager instance;
-    public static XMPPCommunicationManager GetInstance() => instance;
+	[ExportGroup("XMPP Configuration")] [Export]
+	private string ServerName = "";
 
-    [ExportGroup("XMPP Configuration")] 
-    [Export] private string ServerName = "";
-    [Export] private string UserName = "";
-    [Export] private string Password = "";
+	[Export] private string UserName = "";
+	[Export] private string Password = "";
 
-    [ExportGroup("Debug variables")] 
-    [Export] private bool ShouldStoreMessages = false;
-    [Export] private bool Verbose = true;
-    [Export] private bool TestSendingAndReceiving = false;
-    [Export] private MessageTestingLabel TestingLabel = null;
-    
-    private static ArtalkXmppClient XmppClient = null;
-    private List<Message> ReceivedMessages = new List<Message>();
-    private List<Message> SentMessages = new List<Message>();
+	[ExportGroup("Debug variables")] [Export]
+	private bool ShouldStoreMessages = false;
 
+	[Export] private bool Verbose = true;
+	[Export] private bool TestSendingAndReceiving = false;
+	[Export] private MessageTestingLabel TestingLabel = null;
 
-    public override void _Ready()
-    {
-        base._Ready();
-        if (instance == null)
-        {
-            instance = this;
-        }
-        else
-        {
-            GD.PrintErr("Tried to create a XMPPCommunicationManager, but there's already oen");
-        }
-    }
+	[Signal]
+	public delegate void OnMessageReceivedEventHandler(string senderID, string commandType, string commandData);
 
-    public void StartXMPPClient()
-    {
-        XmppClient = new ArtalkXmppClient(ServerName, UserName, Password);
+	private static ArtalkXmppClient XmppClient = null;
 
-        XmppClient.Message += OnNewMessage;
-        XmppClient.Connect();
-        if (XmppClient.Connected == false)
-        {
-            GD.PushError($"CommunicationManager::_Ready: Could not connect to server {ServerName}");
-        }
+	public override void _Ready()
+	{
+		base._Ready();
+		if (instance == null)
+		{
+			instance = this;
+		}
+		else
+		{
+			GD.PrintErr("Tried to create a XMPPCommunicationManager, but there's already one");
+		}
+	}
 
-    }
-    
-    private void OnNewMessage(object sender, MessageEventArgs messageEventArgs)
-    {
-        if (Verbose)
-        {
-            GD.Print($"Message received from {messageEventArgs.Jid} : {messageEventArgs.Message.Body}");
-        }
+	public void StartXMPPClient()
+	{
+		XmppClient = new ArtalkXmppClient(ServerName, UserName, Password);
 
-        if (TestSendingAndReceiving)
-        {
-            GD.PushWarning("TestSendingAndReceiving is true. Calling testing function");
-            TestSendingAndReceivingMessage(messageEventArgs);
-            return;
-        }
-        SendMessageToNode(messageEventArgs);
-    }
+		XmppClient.Message += OnNewMessage;
+		XmppClient.Connect();
+		if (XmppClient.Connected == false)
+		{
+			GD.PushError($"CommunicationManager::_Ready: Could not connect to server {ServerName}");
+		}
+	}
 
-    private void InternalSendMessage(Message message)
-    {
-        Debug.Assert(XmppClient.Connected, "Error: XmppClient is not connected!");
+	private void OnNewMessage(object sender, MessageEventArgs messageEventArgs)
+	{
+		if (Verbose)
+		{
+			GD.Print($"Message received from {messageEventArgs.Jid} : {messageEventArgs.Message.Body}");
+		}
 
-        XmppClient.SendMessage(message);
-        if (ShouldStoreMessages)
-        {
-            SentMessages.Add(message);
-        }
-    }
+		var parsedCommand = Utilities.Files.ParseJson<CommandInfo>(messageEventArgs.Message.Body);
+		if (parsedCommand.commandName=="")
+		{
+			GD.PushError($"Couldn't parse message {messageEventArgs.ToString()}");
+			return;
+		}
 
-    private void SendMessageToNode(MessageEventArgs messageArgs)
-    {
+		if (TestSendingAndReceiving)
+		{
+			GD.PushWarning("TestSendingAndReceiving is true. Calling testing function");
+			string dummyReceiverJID = "DummyReceiverJID";
+			EmitSignal(
+				SignalName.OnMessageReceived,
+				dummyReceiverJID,
+				parsedCommand.commandName,
+				parsedCommand.data
+			);
+			return;
+		}
 
-        //This is ran on a background thread, so we need to call OnMessageReceived via CallDeferred
-        // con: CallDeferred is a GodotObject method, so we cannot directly use the interface
-        //Todo: Revisit this and check option b: Store message in a list and send to appropriate node during _Process 
-        Debug.Assert(TestingLabel is IMessageReceiverInterface,
-            "CommunicationManager::OnNewMessage: Tried to send a message to an object that does not implement IMessageReceiverInterface"
-        );
-        
-        Variant[] functionParameters = { messageArgs.Message.Body };
-        TestingLabel.CallDeferred("ProcessReceivedMessage", functionParameters);
+		EmitSignal(
+			SignalName.OnMessageReceived,
+			messageEventArgs.Jid.ToString(),
+			parsedCommand.commandName,
+			parsedCommand.data
+		);
+	}
 
-    }
+	private void InternalSendMessage(Message message)
+	{
+		Debug.Assert(XmppClient.Connected, "Error: XmppClient is not connected!");
 
-    private void TestSendingAndReceivingMessage(MessageEventArgs messageArgs)
-    {
-        Debug.Assert(TestingLabel is IMessageReceiverInterface,
-            "CommunicationManager::OnNewMessage: Tried to send a message to an object that does not implement IMessageReceiverInterface"
-        );
-        
-        Variant[] functionParameters = { messageArgs.Message.Body };
-        TestingLabel.CallDeferred("ProcessReceivedMessage", functionParameters);
-        
-        Utilities.Messages.SendMessage(messageArgs.Jid,"Dummy reply. Message received and read");
-    }
-    
-    public static void SendMessage(Message body)
-    {
-        instance.InternalSendMessage(body);
-    }
+		XmppClient.SendMessage(message);
+	}
+	
+	public static void SendMessage(Message body)
+	{
+		instance.InternalSendMessage(body);
+	}
 }

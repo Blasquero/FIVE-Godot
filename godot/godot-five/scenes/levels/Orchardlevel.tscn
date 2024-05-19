@@ -1,6 +1,5 @@
-[gd_scene load_steps=9 format=3 uid="uid://ceh7fq83v8g24"]
+[gd_scene load_steps=8 format=3 uid="uid://ceh7fq83v8g24"]
 
-[ext_resource type="Script" path="res://scripts/managers/SimulationManager.cs" id="1_odr7g"]
 [ext_resource type="PackedScene" uid="uid://cscyh5yg47tgh" path="res://scenes/managers.tscn" id="2_4vlyc"]
 [ext_resource type="PackedScene" uid="uid://bn5pjd1q8oc7j" path="res://scenes/levels/BaseLevel.tscn" id="4_5nwed"]
 [ext_resource type="Script" path="res://scripts/testing/MessageTestingLabel.cs" id="7_nyfsv"]
@@ -21,20 +20,13 @@ resource_local_to_scene = true
 material = SubResource("ORMMaterial3D_uub50")
 size = Vector3(500, 1, 500)
 
-[node name="Root" type="Node3D" node_paths=PackedStringArray("CommunicationManager", "MapManager", "EntityManager")]
+[node name="Root" type="Node3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0475464, 0, 0)
-script = ExtResource("1_odr7g")
-CommunicationManager = NodePath("Managers/CommunicationManager")
-MapManager = NodePath("Managers/MapManager")
-EntityManager = NodePath("Managers/EntityManager")
-JsonMapConfigFilePath = "res://resources/map_config.json"
-GodotUnityFoldersFilePath = "res://resources/folders_config.json"
 
 [node name="Managers" parent="." instance=ExtResource("2_4vlyc")]
 
-[node name="CommunicationManager" parent="Managers" index="0" node_paths=PackedStringArray("TestingLabel")]
+[node name="CommunicationManager" parent="Managers" index="0"]
 TestSendingAndReceiving = false
-TestingLabel = NodePath("../../CommunicationTestingLabel3d")
 
 [node name="EntityManager" parent="Managers" index="1" node_paths=PackedStringArray("Ground")]
 Ground = NodePath("../../Node3D/NavigationObstacle3D/Ground")
@@ -42,11 +34,12 @@ Ground = NodePath("../../Node3D/NavigationObstacle3D/Ground")
 [node name="MapManager" parent="Managers" index="2" node_paths=PackedStringArray("GroundBody")]
 GroundBody = NodePath("../../Node3D/NavigationObstacle3D/Ground")
 
-[node name="CommunicationTestingLabel3d" type="Label3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.25079, -3.08252)
-text = "Communication Testing Label
-"
-script = ExtResource("7_nyfsv")
+[node name="SimulationManager" parent="Managers" index="3" node_paths=PackedStringArray("CommunicationManager", "MapManager", "EntityManager")]
+CommunicationManager = NodePath("../CommunicationManager")
+MapManager = NodePath("../MapManager")
+EntityManager = NodePath("../EntityManager")
+JsonMapConfigFilePath = "res://resources/map_config.json"
+GodotUnityFoldersFilePath = "res://resources/folders_config.json"
 
 [node name="Node3D" parent="." instance=ExtResource("4_5nwed")]
 
@@ -58,6 +51,11 @@ shape = SubResource("BoxShape3D_w6538")
 
 [node name="MeshInstance3D" parent="Node3D/NavigationObstacle3D/Ground" index="1"]
 mesh = SubResource("BoxMesh_d8htj")
+
+[node name="Label3D" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 12.7376, 0)
+text = "MESSAGE TEST LABEL"
+script = ExtResource("7_nyfsv")
 
 [editable path="Managers"]
 [editable path="Node3D"]
