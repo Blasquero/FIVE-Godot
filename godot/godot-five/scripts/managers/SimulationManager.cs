@@ -2,96 +2,109 @@ using Godot;
 
 public partial class SimulationManager : Node
 {
-    [ExportCategory("Managers")]
-    [Export] private XMPPCommunicationManager CommunicationManager;
-    [Export] private MapManager MapManager;
-    [Export] private EntityManager EntityManager;
+	[ExportCategory("Managers")] [Export] private XMPPCommunicationManager CommunicationManager;
+	[Export] private MapManager MapManager;
+	[Export] private EntityManager EntityManager;
 
-    [ExportCategory("Configuration files")] 
-    [Export] private string JsonMapConfigFilePath;
-    [Export] private string GodotUnityFoldersFilePath;
+	[ExportCategory("Configuration files")] [Export]
+	private string JsonMapConfigFilePath;
 
-    private static UnityToGodotFolder FoldersConfig;
-    public static ref UnityToGodotFolder GetFoldersConfig() => ref FoldersConfig;
-    private static MapConfiguration MapConfigData;
-    public static ref MapConfiguration GetMapConfigurationData() => ref MapConfigData;
+	[Export] private string GodotUnityFoldersFilePath;
 
-    #region Godot Overrides
+	private static UnityToGodotFolder FoldersConfig;
+	public static ref UnityToGodotFolder GetFoldersConfig() => ref FoldersConfig;
+	private static MapConfiguration MapConfigData;
+	public static ref MapConfiguration GetMapConfigurationData() => ref MapConfigData;
 
-    public override void _Ready()
-    {
-        CommunicationManager.StartXMPPClient();
+	#region Godot Overrides
 
-        if (!ParseGodotUnityFolders())
-        {
-            return;
-        }
-        if (!ParseJSONMapConfigInfo())
-        {
-            return;
-        }
+	public override void _Ready()
+	{
+		CommunicationManager.StartXMPPClient();
 
-        MapManager.OnMapGenerated += OnMapGenerated;
-        GD.Print("Starting map generation");
-        MapManager.StartMapGeneration();
-    }
+		if (!ParseGodotUnityFolders())
+		{
+			return;
+		}
 
-    #endregion
+		ParseJSONMapConfigInfo();
 
-    private bool ParseJSONMapConfigInfo()
-    {
-        MapConfigData = Utilities.Files.ParseJsonFile<MapConfiguration>(JsonMapConfigFilePath, out Error outError);
-        if (outError != Error.Ok)
-        {
-            return false;
-        }
+		MapManager.OnMapGenerated += OnMapGenerated;
+		GD.Print("Starting map generation");
+		MapManager.StartMapGeneration();
+	}
 
-        MapConfigData.InitLetterToPrefabMapping();
-        MapConfigData.ArrayLetterToPrefabMapping();
+	#endregion
 
-        Utilities.Math.OrientVector3(ref MapConfigData.origin);
-        return true;
-    }
+	private bool ParseJSONMapConfigInfo()
+	{
+		MapConfigData = Utilities.Files.ParseJsonFile<MapConfiguration>(JsonMapConfigFilePath, out Error outError);
+		if (outError != Error.Ok)
+		{
+			return false;
+		}
 
-    private bool ParseGodotUnityFolders()
-    {
-        FoldersConfig =
-            Utilities.Files.ParseJsonFile<UnityToGodotFolder>(GodotUnityFoldersFilePath, out Error outError);
-        if (outError != Error.Ok)
-        {
-            return false;
-        }
+		if (MapConfigData.symbolToPrefabMap == null)
+		{
+			GD.PushWarning("WARNING: Symbol to prefab mapping is empty. Check map_config.json");
+			GD.PushWarning("Continuing simulation");
+			return false;
+		}
 
-        return true;
-    }
-    
-    #region Signal Handlers
+		MapConfigData.InitLetterToPrefabMapping();
+		MapConfigData.ArrayLetterToPrefabMapping();
 
-    private void OnMapGenerated(int generationResult)
-    {
-        if ((MapGenerationError)generationResult == MapGenerationError.OK)
-        {
-            GD.Print("Map Generated without issues. Starting map population");
-            EntityManager.OnMapPopulationFinished += OnMapPopulationFinished;
-            EntityManager.StartMapPopulation();
-        }
-        else
-        {
-            GD.PushError($"Map generation failed with errors {((MapGenerationError)generationResult).ToString()} ");
-        }
-    }
+		Utilities.Math.OrientVector3(ref MapConfigData.origin);
+		return true;
+	}
 
-    private void OnMapPopulationFinished(int populationResult)
-    {
-        if ((MapPopulationError)populationResult == MapPopulationError.OK)
-        {
-            GD.Print("Map populated without issues. Starting communications");
-        }
-        else
-        {
-            GD.PushError($"Map population failed with error {((MapPopulationError)populationResult).ToString()}");
-        }
-    }
+	private bool ParseGodotUnityFolders()
+	{
+		FoldersConfig =
+			Utilities.Files.ParseJsonFile<UnityToGodotFolder>(GodotUnityFoldersFilePath, out Error outError);
+		if (outError != Error.Ok)
+		{
+			return false;
+		}
 
-    #endregion
+		if (string.IsNullOrEmpty(FoldersConfig.GodotDataFolder) || string.IsNullOrEmpty(FoldersConfig.UnityDataFolder))
+		{
+			GD.PushError(
+				"ERROR: Godot data path or unity data path are empty. Please review folders_config.json. Halting simulation"
+			);
+			return false;
+		}
+
+		return true;
+	}
+
+	#region Signal Handlers
+
+	private void OnMapGenerated(int generationResult)
+	{
+		if ((MapGenerationError)generationResult > MapGenerationError.CompletedWithLightWarnings)
+		{
+			GD.Print($"Map Generation returned {((MapGenerationError)generationResult).ToString()}. Starting map population");
+			EntityManager.OnMapPopulationFinished += OnMapPopulationFinished;
+			EntityManager.StartMapPopulation();
+		}
+		else
+		{
+			GD.PushError($"Map generation failed with errors {((MapGenerationError)generationResult).ToString()} ");
+		}
+	}
+
+	private void OnMapPopulationFinished(int populationResult)
+	{
+		if ((MapPopulationError)populationResult == MapPopulationError.OK)
+		{
+			GD.Print("Map populated without issues. Starting communications");
+		}
+		else
+		{
+			GD.PushError($"Map population failed with error {((MapPopulationError)populationResult).ToString()}");
+		}
+	}
+
+	#endregion
 }

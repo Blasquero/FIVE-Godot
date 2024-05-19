@@ -57,7 +57,7 @@ public partial class EntityManager : Node
                     GD.PushError($"Found symbol '{entityChar}' without an associated prefab. Skipping");
                     continue;
                 }
-                Node3D newEntity = SpawnNewEntity(entityPath, entityLocation);
+                Node3D newEntity = Utilities.Entities.SpawnNewEntity(entityPath);
                 if (newEntity ==null)
                 {
                     GD.PushError($"Couldn't instantiate scene in path {entityPath} associated to symbol {entityChar}");

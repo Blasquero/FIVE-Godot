@@ -2,35 +2,68 @@ using System.Collections.Generic;
 using System.Linq;
 using Godot;
 
+#region MapConfigClasses
+
+public class LightInfo
+{
+	public bool active;
+	public string objectName;
+	public string objectPrefabName;
+	public Vector3 position;
+	public Vector3 rotation;
+	public Color color;
+	public float intensity;
+}
+
+public class ObjectInfo
+{
+	public bool active;
+	public string objectName;
+	public string objectPrefabName;
+	public string dataFolder;
+	public Vector3 position;
+	public Vector3 rotation;
+
+	public double comRadio;
+}
+
+public class InfoCollection
+{
+	public LightInfo[] lights;
+	public ObjectInfo[] objects;
+}
+#endregion
+
 public enum MapGenerationError
 {
-    OK,
-    FileError,
-    ParsingError,
+	OK,
+	CompletedWithLightWarnings,
+	FileError,
+	ParsingError
 }
 
 public readonly struct MapInfo
 {
-    private readonly Vector2I mapSize;
-    public Vector2I GetMapSize() => mapSize;
+	private readonly Vector2I mapSize;
+	public Vector2I GetMapSize() => mapSize;
 
-    //Store the map as an array of rows
-    /*
-     * e.g a field like
-     *  AAAA
-     *  BBBB
-     *  CCCC
-     *
-     * will be stored as an array [3][4] where array[0] will be the first row (AAAA)
-     */
-    private readonly char[,] mapSymbolMatrix;
-    public char[,] GetMapSymbolMatrix() => mapSymbolMatrix;
-    
-  public MapInfo(in char[,] mapSymbolMatrix)
-    {
-        this.mapSize = new Vector2I(mapSymbolMatrix.GetLength(0), mapSymbolMatrix.GetLength(1));
-        this.mapSymbolMatrix = mapSymbolMatrix;
-    }
+	//Store the map as an array of rows
+	/*
+	 * e.g a field like
+	 *  AAAA
+	 *  BBBB
+	 *  CCCC
+	 *
+	 * will be stored as an array [3][4] where array[0] will be the first row (AAAA)
+	 */
+	private readonly char[,] mapSymbolMatrix;
+	public char[,] GetMapSymbolMatrix() => mapSymbolMatrix;
+
+	public MapInfo(in char[,] mapSymbolMatrix)
+	{
+		this.mapSize = new Vector2I(mapSymbolMatrix.GetLength(0), mapSymbolMatrix.GetLength(1));
+		this.mapSymbolMatrix = mapSymbolMatrix;
+	}
 }
 
 // Class in charge of parsing the map information from the map text file and scaling the ground
@@ -40,136 +73,219 @@ public readonly struct MapInfo
 
 public partial class MapManager : Node
 {
-    [ExportGroup("Map Configuration")] 
-    [Export] private string PathToTextFile = "";
-    [Export(PropertyHint.NodeType,"StaticBody3D")] private StaticBody3D GroundBody = null;
-    [Export] private bool AdaptGroundSize = false;
+	[ExportGroup("Map Configuration")] 
+	[Export(PropertyHint.File)] private string MapFilePath = "";
+	[Export(PropertyHint.File)] private string MapConfigFilePath = "";
+	
+	//TODO: Check about turning this into a resource
+	[Export(PropertyHint.File)] private string SunLight;
+	[Export(PropertyHint.File)] private string MoonLight;
+	
+	[Export(PropertyHint.NodeType, "StaticBody3D")]
+	private StaticBody3D GroundBody = null;
+	[Export] private bool AdaptGroundSize = false;
 
-    //Signals can only use Variant types, so we need to send it as an int and cast it on the signal handler
-    //More info: https://docs.godotengine.org/en/stable/tutorials/scripting/c_sharp/c_sharp_variant.html#variant-compatible-types
-    [Signal]
-    public delegate void OnMapGeneratedEventHandler(int mapGenerationError);
-    
-    private string MapFileContent;
-    private FileAccess MapFileAccess;
+	
+	//Signals can only use Variant types, so we need to send it as an int and cast it on the signal handler
+	//More info: https://docs.godotengine.org/en/stable/tutorials/scripting/c_sharp/c_sharp_variant.html#variant-compatible-types
+	[Signal]
+	public delegate void OnMapGeneratedEventHandler(int mapGenerationError);
 
-    private static MapInfo MapInfo;
-    public static ref MapInfo GetMapInfo() =>  ref MapInfo;
+	private string MapFileContent;
+	private FileAccess MapFileAccess;
 
-   public void StartMapGeneration()
-    {
-        Error readingFileError = Utilities.Files.GetFileContent(PathToTextFile, out string fileContent);
-        
-        if (readingFileError!= Error.Ok)
-        {
-            EmitSignal(SignalName.OnMapGenerated, (int)MapGenerationError.FileError);
-            return;
-        }
+	private static MapInfo MapInfo;
+	public static ref MapInfo GetMapInfo() => ref MapInfo;
 
-        if (!ParseMapInfo(fileContent))
-        {
-            EmitSignal(SignalName.OnMapGenerated, (int)MapGenerationError.ParsingError);
-            return;
-        }
+	private static InfoCollection MapConfingInfo;
+	public static ref InfoCollection GetMapConfigInfo() => ref MapConfingInfo;
 
-        ResizeGround();
-        if (AdaptGroundSize)
-        {
-            AlignMapToOrigin();
-        }
-        
-        EmitSignal(SignalName.OnMapGenerated, (int)MapGenerationError.OK);
-    }
+	public void StartMapGeneration()
+	{
+		//Extract map information from map.txt
+		Error readingFileError = Utilities.Files.GetFileContent(MapFilePath, out string fileContent);
 
-    #region File Reading and Parsing
-    
-    private bool TryGetMapFileContent()
-    {
-        if (!FileAccess.FileExists(PathToTextFile))
-        {
-            GD.PushError($"Error: File {PathToTextFile} doesn't exist");
-            return false;
-        }
-        
-        MapFileAccess = FileAccess.Open(PathToTextFile, FileAccess.ModeFlags.Read);
-        Error openingError = MapFileAccess.GetError();
-       
-        if (openingError == Error.Ok)
-        {
-            return true;
-        }
-        GD.PrintErr($"Found error {openingError.ToString()} when trying to open file {PathToTextFile} ");
-        return false;
-    }
-    
-    //Parse the file text until we have it line by line
-    private bool ParseMapInfo(in string fileContents)
-    {   
-        if (fileContents.Length == 0)
-        {
-            GD.PushError("Map file was empty");
-            return false;
-        }
-        
-        SplitMapInfo(fileContents, out List<string> listInfo);
-        
-        StoreMapInfo(listInfo);
-       
-        return true;
-    }
+		if (readingFileError != Error.Ok)
+		{
+			EmitSignal(SignalName.OnMapGenerated, (int)MapGenerationError.FileError);
+			return;
+		}
 
-    private void SplitMapInfo(in string cleanFileText,out List<string> listOfLines)
-    {
-        //Split the map info into lines
-        string[] arrayLines = cleanFileText.Split("\n");
-        
-        //Convert to a list so it's easier to remove empty lines
-        listOfLines = arrayLines.ToList();
-        listOfLines.RemoveAll(line => line.Length == 0);
-        for (int i = 0; i < listOfLines.Count; i++)
-        {
-            listOfLines[i] = listOfLines[i].TrimEnd('\r', '\n');
-        }
-    }
-    
-    private void StoreMapInfo(in List<string> listStrings)
-    { 
-        var mapSize = new Vector2I(listStrings[0].Length, listStrings.Count);
-        char[,] symbolMap = new char[mapSize.Y,mapSize.X];
-        for (int i = 0; i < mapSize.Y; i++)
-        {
-            for (int j = 0; j < mapSize.X; j++)
-            {
-                symbolMap[i,j] = listStrings[i][j];
-            }
-        }
-        
-        MapInfo = new MapInfo(symbolMap);
-    }
-    #endregion
+		if (!ParseMapInfo(fileContent))
+		{
+			EmitSignal(SignalName.OnMapGenerated, (int)MapGenerationError.ParsingError);
+			return;
+		}
 
-    private void ResizeGround()
-    {
-        if (!AdaptGroundSize)
-        {
-           // GroundBody.Scale = new Vector3(500, GroundBody.Scale.Y, 500);
-            return;
-        }
-        
-        MapConfiguration mapConfigData = Utilities.ConfigData.GetMapConfigurationData();
-        Vector2 mapSize = MapInfo.GetMapSize();
-        var newGroundScale = new Vector3(mapSize.X * mapConfigData.distance.X, GroundBody.Scale.Y, mapSize.Y * mapConfigData.distance.Y);
-        GroundBody.Scale = newGroundScale;
-    }
+		ResizeGround();
+		if (AdaptGroundSize)
+		{
+			AlignMapToOrigin();
+		}
 
-    
-    private void AlignMapToOrigin()
-    {
-        MapConfiguration mapConfigData = Utilities.ConfigData.GetMapConfigurationData();
-        Vector3 newGroundPosition =
-            mapConfigData.origin + new Vector3(GroundBody.Scale.X / 2, 0, GroundBody.Scale.Z / 2);
-        GroundBody.Position = newGroundPosition;
-        //Adding some padding so the map is slightly larger than the field we are representing
-        GroundBody.Scale = GroundBody.Scale * new Vector3(1.2f, 1f, 1.2f);
-    }
+		MapConfingInfo = Utilities.Files.ParseJsonFile<InfoCollection>(
+			MapConfigFilePath,
+			out Error error
+		);
+		
+		if (error != Error.Ok || MapConfingInfo == null)
+		{
+			GD.PushWarning("WARNING: Couldn't get Light info");
+		}
+		
+		else
+		{
+			CorrectInfoCollectionTransforms();
+			SetupLightning();
+		}
+
+		MapGenerationError resultSignal = MapConfingInfo == null
+			? MapGenerationError.CompletedWithLightWarnings
+			: MapGenerationError.OK;
+		EmitSignal(SignalName.OnMapGenerated, (int)resultSignal);
+	}
+
+	#region File Reading and Parsing
+
+	private bool TryGetMapFileContent()
+	{
+		if (!FileAccess.FileExists(MapFilePath))
+		{
+			GD.PushError($"Error: File {MapFilePath} doesn't exist");
+			return false;
+		}
+
+		MapFileAccess = FileAccess.Open(MapFilePath, FileAccess.ModeFlags.Read);
+		Error openingError = MapFileAccess.GetError();
+
+		if (openingError == Error.Ok)
+		{
+			return true;
+		}
+
+		GD.PrintErr($"Found error {openingError.ToString()} when trying to open file {MapFilePath} ");
+		return false;
+	}
+
+	//Parse the file text until we have it line by line
+	private bool ParseMapInfo(in string fileContents)
+	{
+		if (fileContents.Length == 0)
+		{
+			GD.PushError("Map file was empty");
+			return false;
+		}
+
+		SplitMapInfo(fileContents, out List<string> listInfo);
+
+		StoreMapInfo(listInfo);
+
+		return true;
+	}
+
+	private void SplitMapInfo(in string cleanFileText, out List<string> listOfLines)
+	{
+		//Split the map info into lines
+		string[] arrayLines = cleanFileText.Split("\n");
+
+		//Convert to a list so it's easier to remove empty lines
+		listOfLines = arrayLines.ToList();
+		listOfLines.RemoveAll(line => line.Length == 0);
+		for (int i = 0; i < listOfLines.Count; i++)
+		{
+			listOfLines[i] = listOfLines[i].TrimEnd('\r', '\n');
+		}
+	}
+
+	private void StoreMapInfo(in List<string> listStrings)
+	{
+		var mapSize = new Vector2I(listStrings[0].Length, listStrings.Count);
+		char[,] symbolMap = new char[mapSize.Y, mapSize.X];
+		for (int i = 0; i < mapSize.Y; i++)
+		{
+			for (int j = 0; j < mapSize.X; j++)
+			{
+				symbolMap[i, j] = listStrings[i][j];
+			}
+		}
+
+		MapInfo = new MapInfo(symbolMap);
+	}
+
+	#endregion
+
+	private void ResizeGround()
+	{
+		if (!AdaptGroundSize)
+		{
+			// GroundBody.Scale = new Vector3(500, GroundBody.Scale.Y, 500);
+			return;
+		}
+
+		MapConfiguration mapConfigData = Utilities.ConfigData.GetMapConfigurationData();
+		Vector2 mapSize = MapInfo.GetMapSize();
+		var newGroundScale = new Vector3(
+			mapSize.X * mapConfigData.distance.X,
+			GroundBody.Scale.Y,
+			mapSize.Y * mapConfigData.distance.Y
+		);
+		GroundBody.Scale = newGroundScale;
+	}
+
+
+	private void AlignMapToOrigin()
+	{
+		MapConfiguration mapConfigData = Utilities.ConfigData.GetMapConfigurationData();
+		Vector3 newGroundPosition =
+			mapConfigData.origin + new Vector3(GroundBody.Scale.X / 2, 0, GroundBody.Scale.Z / 2);
+		GroundBody.Position = newGroundPosition;
+		//Adding some padding so the map is slightly larger than the field we are representing
+		GroundBody.Scale = GroundBody.Scale * new Vector3(1.2f, 1f, 1.2f);
+	}
+
+	private void CorrectInfoCollectionTransforms()
+	{
+		foreach (LightInfo lightInfo in MapConfingInfo.lights)
+		{
+			Utilities.Math.OrientVector3(ref lightInfo.position);
+		}
+
+		foreach (ObjectInfo objectInfo in MapConfingInfo.objects)
+		{
+			Utilities.Math.OrientVector3(ref objectInfo.position);
+		}
+	}
+
+	private void SetupLightning()
+	{
+		foreach (LightInfo lightInfo in MapConfingInfo.lights)
+		{
+			if (!lightInfo.active)
+			{
+				continue;
+			}
+
+			if (lightInfo.objectName == "Sun Light")
+			{
+				//TODO: Comprobar si necesitamos spawnear objetos distintos segun el tipo de luz
+				//DirectionalLight3D lightSource =(DirectionalLight3D) Utilities.Entities.SpawnNewEntity(SunLight);
+				var lightSource = new DirectionalLight3D();
+				if (lightSource == null)
+				{
+					GD.PushWarning("WARNING: Couldn't spawn light sources");
+					return;
+				}
+				
+				GroundBody.AddChild(lightSource);
+				lightSource.GlobalPosition =  lightInfo.position;
+				lightSource.GlobalRotation = lightInfo.rotation;
+				lightSource.LightColor = lightInfo.color;
+				
+				//TODO: Comprobar que esto funca bien
+				lightSource.LightEnergy = lightInfo.intensity;
+			}
+			
+			
+		}
+	}
 }
