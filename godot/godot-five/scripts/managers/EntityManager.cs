@@ -133,6 +133,13 @@ public partial class EntityManager : Node
 	{
 		Debug.Assert(ResourceLoader.Exists(entityPath));
 		var instance = ResourceLoader.Load<PackedScene>(entityPath).Instantiate() as Node3D;
+		if (instance == null)
+		{
+			//TODO: Log error
+			return null;
+		}
+		Ground.AddChild(instance);
+		instance.GlobalPosition = entityLocation;
 		return instance;
 	}
 
@@ -146,7 +153,7 @@ public partial class EntityManager : Node
 
 		string agentOwner = commandData[0];
 		string agentType = commandData[1];
-		
+
 		// The starter position can be either a spawner or a position
 		Vector3 starterPosition = Vector3.Zero;
 		//If it starts with {, it's a vector
@@ -167,21 +174,26 @@ public partial class EntityManager : Node
 			}
 		}
 
-		if (!SpawnablePrefabs.ContainsKey(agentType))
+		Node3D newEntity = SpawnNewAgent(agentType, starterPosition);
+		if (newEntity == null)
 		{
-			//TODO: Log error
 			return;
 		}
 
-		string pathToEntity = SpawnablePrefabs[agentType];
-		Node3D newEntity = SpawnNewEntity(pathToEntity, starterPosition);
-		if (newEntity == null)
-		{
-			//TODO: Log error
-			return;
-		}
 		//TODO: Assign new entity to sender JID
 		Utilities.Messages.SendMessage(senderID, JsonConvert.SerializeObject(starterPosition));
+
 	}
-	
+
+	private Node3D SpawnNewAgent(string agentType, Vector3 starterPosition)
+	{
+		if (!SpawnablePrefabs.TryGetValue(agentType, out string pathToEntity))
+		{
+			//TODO: Log error
+			return null;
+		}
+
+		Node3D newEntity = SpawnNewEntity(pathToEntity, starterPosition);
+		return newEntity;
+	}
 }
