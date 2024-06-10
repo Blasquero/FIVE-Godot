@@ -31,7 +31,6 @@ public partial class XMPPCommunicationManager : Node
 	private bool ShouldStoreMessages = false;
 
 	[Export] private bool Verbose = true;
-	[Export] private bool TestSendingAndReceiving = false;
 
 	[Signal]
 	public delegate void OnMessageReceivedEventHandler(string senderID, string commandType, string[] commandData);
@@ -70,14 +69,7 @@ public partial class XMPPCommunicationManager : Node
 			GD.Print($"Message received from {messageEventArgs.Jid} : {messageEventArgs.Message.Body}");
 		}
 
-		if (TestSendingAndReceiving)
-		{
-			GD.PushWarning("TestSendingAndReceiving is true. Calling testing function");
-			string dummyReceiverJID = "DummyReceiverJID";
-			string[] dummyData = new[] { messageEventArgs.Message.Body };
-			CallDeferred("PropagateMessage", dummyReceiverJID, "TestSendingAndReceive", dummyData);
-			return;
-		}
+		string senderJID = messageEventArgs.Jid.ToString();
 
 		var parsedCommand = Utilities.Files.ParseJson<CommandInfo>(messageEventArgs.Message.Body);
 		if (parsedCommand.commandName == "")
@@ -91,7 +83,7 @@ public partial class XMPPCommunicationManager : Node
 		//TODO: Check if this causes a delay and test option b) Queue message and propagate it during _Process
 		CallDeferred(
 			"PropagateMessage",
-			messageEventArgs.Jid.ToString(),
+			senderJID,
 			parsedCommand.commandName,
 			parsedCommand.data
 		);
