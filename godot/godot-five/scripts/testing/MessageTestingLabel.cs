@@ -1,6 +1,6 @@
 using Godot;
 
-public partial class MessageTestingLabel : Label3D, IMessageReceiverInterface
+public partial class MessageTestingLabel : Label3D
 {
 
 	private static readonly string TestDummyLabel = "DummyReceiverJID";
@@ -8,16 +8,15 @@ public partial class MessageTestingLabel : Label3D, IMessageReceiverInterface
 	public override void _Ready()
 	{
 		base._Ready();
-		((IMessageReceiverInterface)this).SubscribeToMessageReceiver();
+		XMPPCommunicationManager.GetInstance().OnMessageReceived += ProcessReceivedMessage;
 	}
-	#region IMessageReceiverInterface Overrides
-	public void ProcessReceivedMessage(string senderID, string commandType, string commandData)
+
+	private void ProcessReceivedMessage(string senderID, string commandType, string[] commandData)
 	{
 		if (!senderID.Equals(TestDummyLabel))
 		{
 			return;
 		}
-		Text = commandData;
+		Text = commandData[0];
 	}
-	#endregion
 }

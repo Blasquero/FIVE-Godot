@@ -32,10 +32,9 @@ public partial class XMPPCommunicationManager : Node
 
 	[Export] private bool Verbose = true;
 	[Export] private bool TestSendingAndReceiving = false;
-	[Export] private MessageTestingLabel TestingLabel = null;
 
 	[Signal]
-	public delegate void OnMessageReceivedEventHandler(string senderID, string commandType, string commandData);
+	public delegate void OnMessageReceivedEventHandler(string senderID, string commandType, string[] commandData);
 
 	private static ArtalkXmppClient XmppClient = null;
 
@@ -71,28 +70,27 @@ public partial class XMPPCommunicationManager : Node
 			GD.Print($"Message received from {messageEventArgs.Jid} : {messageEventArgs.Message.Body}");
 		}
 
+		if (TestSendingAndReceiving)
+		{
+			GD.PushWarning("TestSendingAndReceiving is true. Calling testing function");
+			string dummyReceiverJID = "DummyReceiverJID";
+			string[] dummyData = new[] { messageEventArgs.Message.Body };
+			CallDeferred("PropagateMessage", dummyReceiverJID, "TestSendingAndReceive", dummyData);
+			return;
+		}
+
 		var parsedCommand = Utilities.Files.ParseJson<CommandInfo>(messageEventArgs.Message.Body);
-		if (parsedCommand.commandName=="")
+		if (parsedCommand.commandName == "")
 		{
 			GD.PushError($"Couldn't parse message {messageEventArgs.ToString()}");
 			return;
 		}
 
-		if (TestSendingAndReceiving)
-		{
-			GD.PushWarning("TestSendingAndReceiving is true. Calling testing function");
-			string dummyReceiverJID = "DummyReceiverJID";
-			EmitSignal(
-				SignalName.OnMessageReceived,
-				dummyReceiverJID,
-				parsedCommand.commandName,
-				parsedCommand.data
-			);
-			return;
-		}
-
-		EmitSignal(
-			SignalName.OnMessageReceived,
+		//This is a background thread, so a signal emitted here won't arrive to any other node. Instead, we use
+		//CallDeferred to send it at EOF
+		//TODO: Check if this causes a delay and test option b) Queue message and propagate it during _Process
+		CallDeferred(
+			"PropagateMessage",
 			messageEventArgs.Jid.ToString(),
 			parsedCommand.commandName,
 			parsedCommand.data
@@ -105,9 +103,14 @@ public partial class XMPPCommunicationManager : Node
 
 		XmppClient.SendMessage(message);
 	}
-	
+
 	public static void SendMessage(Message body)
 	{
 		instance.InternalSendMessage(body);
+	}
+
+	private void PropagateMessage(string senderId, string commandType, string[] data)
+	{
+		EmitSignal(SignalName.OnMessageReceived, senderId, commandType, data);
 	}
 }

@@ -1,8 +1,10 @@
 using Godot;
+using Newtonsoft.Json;
 
 public partial class SimulationManager : Node
 {
-	[ExportCategory("Managers")] [Export] private XMPPCommunicationManager CommunicationManager;
+	[ExportCategory("Managers")] 
+	[Export] private XMPPCommunicationManager CommunicationManager;
 	[Export] private MapManager MapManager;
 	[Export] private EntityManager EntityManager;
 
@@ -16,12 +18,21 @@ public partial class SimulationManager : Node
 	private static MapConfiguration MapConfigData;
 	public static ref MapConfiguration GetMapConfigurationData() => ref MapConfigData;
 
+	private static bool RUNDEBUGCODE = true;
+	
 	#region Godot Overrides
 
 	public override void _Ready()
 	{
+		//TODO: Move this to end of map generation
 		CommunicationManager.StartXMPPClient();
 
+		//Cheap way to test snippets of code. Useful to get JSons of objects, test functions with fake results...
+		if (RUNDEBUGCODE)
+		{
+			PreGenerationCode();
+		}
+		
 		if (!ParseGodotUnityFolders())
 		{
 			return;
@@ -82,7 +93,7 @@ public partial class SimulationManager : Node
 
 	private void OnMapGenerated(int generationResult)
 	{
-		if ((MapGenerationError)generationResult > MapGenerationError.CompletedWithLightWarnings)
+		if ((MapGenerationError)generationResult <= MapGenerationError.CompletedWithLightWarnings)
 		{
 			GD.Print($"Map Generation returned {((MapGenerationError)generationResult).ToString()}. Starting map population");
 			EntityManager.OnMapPopulationFinished += OnMapPopulationFinished;
@@ -104,7 +115,30 @@ public partial class SimulationManager : Node
 		{
 			GD.PushError($"Map population failed with error {((MapPopulationError)populationResult).ToString()}");
 		}
+
+		if (RUNDEBUGCODE)
+		{
+			PostGenerationCode();
+		}
 	}
 
 	#endregion
+
+	private void PreGenerationCode()
+	{
+		CommandInfo testCommand = new CommandInfo();
+		testCommand.commandName = "command_creante";
+		testCommand.data = new string[3];
+		testCommand.data[0] = "agent1";
+		testCommand.data[1] = "Tractor";
+		testCommand.data[2] = "Spawner 1";
+
+		string JSon = JsonConvert.SerializeObject(testCommand);
+		return;
+	}
+
+	private void PostGenerationCode()
+	{
+		return;
+	}
 }
