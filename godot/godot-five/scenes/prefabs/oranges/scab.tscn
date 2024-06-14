@@ -1,11 +1,11 @@
-[gd_scene format=3 uid="uid://baouw1m12c3lf"]
+[gd_scene load_steps=2 format=3 uid="uid://baouw1m12c3lf"]
+
+[ext_resource type="PackedScene" uid="uid://n078g0pbdcyf" path="res://scenes/prefabs/oranges/base_tree.tscn" id="1_iw5sa"]
 
 [node name="Scab" type="Node3D"]
 
-[node name="Label3D" type="Label3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
-text = "SCAB"
+[node name="root_tree" parent="." instance=ExtResource("1_iw5sa")]
 
-[node name="NavigationObstacle3D" type="NavigationObstacle3D" parent="."]
-height = 2.08
-vertices = PackedVector3Array(-0.5, 0, -0.5, 0.5, 0, -0.5, 0.5, 0, 0.5, -0.5, 0, 0.5)
+[node name="Label3D" type="Label3D" parent="root_tree"]
+transform = Transform3D(1000, 0, 0, 0, 1000, 0, 0, 0, 1000, 0, 2539.67, 0)
+text = "SCAB"

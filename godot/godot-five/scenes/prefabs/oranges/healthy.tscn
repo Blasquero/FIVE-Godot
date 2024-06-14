@@ -1,11 +1,11 @@
-[gd_scene format=3 uid="uid://b6rail0tcilyc"]
+[gd_scene load_steps=2 format=3 uid="uid://b6rail0tcilyc"]
 
-[node name="DummyEntity" type="Node3D"]
+[ext_resource type="PackedScene" uid="uid://n078g0pbdcyf" path="res://scenes/prefabs/oranges/base_tree.tscn" id="1_bnshc"]
+
+[node name="Node3D" type="Node3D"]
 
 [node name="Label3D" type="Label3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.53461, 0)
 text = "HEALTHY"
 
-[node name="NavigationObstacle3D" type="NavigationObstacle3D" parent="."]
-height = 2.08
-vertices = PackedVector3Array(-0.5, 0, -0.5, 0.5, 0, -0.5, 0.5, 0, 0.5, -0.5, 0, 0.5)
+[node name="root_tree" parent="." instance=ExtResource("1_bnshc")]

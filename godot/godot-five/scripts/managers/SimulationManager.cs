@@ -127,12 +127,11 @@ public partial class SimulationManager : Node
 	private void PreGenerationCode()
 	{
 		CommandInfo testCommand = new CommandInfo();
-		testCommand.commandName = "command_creante";
-		testCommand.data = new string[3];
-		testCommand.data[0] = "agent1";
-		testCommand.data[1] = "Tractor";
-		testCommand.data[2] = "Spawner 1";
-
+		testCommand.commandName = "move_agent";
+		testCommand.data = new string[1];
+		System.Numerics.Vector3 vector = new System.Numerics.Vector3(10, 10, 10);
+		testCommand.data[0] =vector.ToString();
+		
 		string JSon = JsonConvert.SerializeObject(testCommand);
 		return;
 	}

@@ -16,6 +16,36 @@ namespace Utilities
 			var message = new Message(to: to, body: messageBody, type: MessageType.Chat);
 			XMPPCommunicationManager.SendMessage(message);
 		}
+
+		public static string CreateMessageFromVector3(ref Vector3 vectorToParse, out bool messageCreated)
+		{
+			messageCreated = false;
+			return string.Empty;
+		}
+		public static Vector3 ParseVector3FromMessage(ref string stringToParse, out bool vectorParsed)
+		{
+			vectorParsed = false;
+			string trimmedString = stringToParse.Trim();
+
+			if (!trimmedString.StartsWith("{"))
+			{
+				return Vector3.Zero;
+			}
+
+			trimmedString = trimmedString.Replace("{", "");
+			trimmedString = trimmedString.Replace("}", "");
+			trimmedString = trimmedString.Replace(" ", "");
+			string[] splittedFloats = trimmedString.Split(",");
+			if (splittedFloats.Length != 3)
+			{
+				//TODO: Log error
+				return Vector3.Zero;
+			}
+
+			var parsedVector = new Vector3(splittedFloats[0].ToFloat(), splittedFloats[1].ToFloat(), splittedFloats[2].ToFloat());
+			vectorParsed = true;
+			return parsedVector;
+		}
 	}
 
 	public static class Entities

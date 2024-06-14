@@ -26,6 +26,7 @@ public partial class EntityManager : Node
 	private MapConfiguration MapConfigData = null;
 	private MapInfo MapLayout;
 
+	[Export] private NavigationRegion3D NavMesh;
 	[Export] private Node3D Ground;
 
 	//TODO: Check about turning this into a resource
@@ -77,7 +78,11 @@ public partial class EntityManager : Node
 				newEntity.GlobalPosition = entityLocation;
 			}
 		}
-
+		
+		if (NavMesh != null)
+		{
+			NavMesh.BakeNavigationMesh();
+		}
 		EmitSignal(SignalName.OnMapPopulationFinished, (int)MapPopulationError.OK);
 
 		//Start listening to commands
@@ -87,7 +92,8 @@ public partial class EntityManager : Node
 	private Vector3 CalculateEntityLocation(int x, int y)
 	{
 		Vector2 offset = new Vector2(x, y) * MapConfigData.distance;
-		Vector3 entityLocation = MapConfigData.origin + new Vector3(offset.X, 0, -offset.Y);
+		//TODO: Ground elevation is hardcoded. Find a way to calculate it before populating
+		Vector3 entityLocation = MapConfigData.origin + new Vector3(offset.X, 0.5f, -offset.Y);
 		return entityLocation;
 	}
 
@@ -159,7 +165,7 @@ public partial class EntityManager : Node
 		//If it starts with {, it's a vector
 		if (commandData[2].StartsWith("{"))
 		{
-			starterPosition = JsonConvert.DeserializeObject<Vector3>(commandData[2]);
+			starterPosition = Utilities.Files.ParseJson<Vector3>(commandData[2]);
 		}
 		else
 		{
@@ -180,7 +186,12 @@ public partial class EntityManager : Node
 			return;
 		}
 
-		//TODO: Assign new entity to sender JID
+		var controllableAgent = newEntity as ControllableAgent;
+		if (controllableAgent == null)
+		{
+			return;
+		}
+		controllableAgent.SetOwnerJID(senderID);
 		Utilities.Messages.SendMessage(senderID, JsonConvert.SerializeObject(starterPosition));
 
 	}
