@@ -3,6 +3,7 @@ using System.Data;
 using System.Diagnostics;
 using Godot;
 using Godot.Collections;
+using godotfive.scripts.interfaces;
 using Newtonsoft.Json;
 
 /*
@@ -18,7 +19,7 @@ public enum MapPopulationError
 	EntityNotCreated
 }
 
-public partial class EntityManager : Node
+public partial class EntityManager : Node, IMessageReceiver
 {
 	[Signal]
 	public delegate void OnMapPopulationFinishedEventHandler(int populationResult);
@@ -33,7 +34,7 @@ public partial class EntityManager : Node
 	[Export] private Dictionary<string, string> BasePrefabs;
 
 	[Export] private Dictionary<string, string> SpawnablePrefabs;
-	
+
 	public void StartMapPopulation()
 	{
 		MapConfigData = Utilities.ConfigData.GetMapConfigurationData();
@@ -86,7 +87,8 @@ public partial class EntityManager : Node
 		EmitSignal(SignalName.OnMapPopulationFinished, (int)MapPopulationError.OK);
 
 		//Start listening to commands
-		XMPPCommunicationManager.GetInstance().OnMessageReceived += OnMessageReceived;
+		XMPPCommunicationManager.GetInstance().RegisterNewMessageReceiver("EntityManager", this);
+
 	}
 
 	private Vector3 CalculateEntityLocation(int x, int y)
@@ -149,27 +151,40 @@ public partial class EntityManager : Node
 		return instance;
 	}
 
-	private void OnMessageReceived(string senderID, string commandType, string[] commandData)
+	private Node3D SpawnNewAgent(string agentType, Vector3 starterPosition)
 	{
-		//TODO: Que responder si hay errores aquí
-		if (commandType != "command_create")
+		if (!SpawnablePrefabs.TryGetValue(agentType, out string pathToEntity))
 		{
-			return;
+			//TODO: Log error
+			return null;
 		}
 
-		string agentOwner = commandData[0];
-		string agentType = commandData[1];
+		Node3D newEntity = SpawnNewEntity(pathToEntity, starterPosition);
+		return newEntity;
+	}
+
+	public void ReceiveMessage(CommandInfo CommandData, string SenderID)
+	{
+		string agentName = CommandData.data[0];
+		string agentType = CommandData.data[1];
 
 		// The starter position can be either a spawner or a position
 		Vector3 starterPosition = Vector3.Zero;
 		//If it starts with {, it's a vector
-		if (commandData[2].StartsWith("{"))
+		if (CommandData.data[2].StartsWith("{"))
 		{
-			starterPosition = Utilities.Files.ParseJson<Vector3>(commandData[2]);
+			float[] parsedArray = Utilities.Messages.ParseArrayFromMessage(ref CommandData.data[2]);
+			if (parsedArray.Length !=3)
+			{
+				return;
+			}
+
+			starterPosition = new Vector3(parsedArray[0], parsedArray[1], parsedArray[2]);
+			Utilities.Math.OrientVector3(ref starterPosition);
 		}
 		else
 		{
-			var selectedSpawner = Ground.GetNode(commandData[2]) as Node3D;
+			var selectedSpawner = Ground.GetNode(CommandData.data[2]) as Node3D;
 			if (selectedSpawner == null)
 			{
 				//TODO: Log error
@@ -191,20 +206,9 @@ public partial class EntityManager : Node
 		{
 			return;
 		}
-		controllableAgent.SetOwnerJID(senderID);
-		Utilities.Messages.SendMessage(senderID, JsonConvert.SerializeObject(starterPosition));
+		controllableAgent.SetName(agentName);
+		controllableAgent.SetOwnerJID(SenderID);
+		Utilities.Messages.SendMessage(SenderID, JsonConvert.SerializeObject(starterPosition));
 
-	}
-
-	private Node3D SpawnNewAgent(string agentType, Vector3 starterPosition)
-	{
-		if (!SpawnablePrefabs.TryGetValue(agentType, out string pathToEntity))
-		{
-			//TODO: Log error
-			return null;
-		}
-
-		Node3D newEntity = SpawnNewEntity(pathToEntity, starterPosition);
-		return newEntity;
 	}
 }

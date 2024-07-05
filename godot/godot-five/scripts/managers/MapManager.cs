@@ -77,15 +77,13 @@ public partial class MapManager : Node
 	[Export(PropertyHint.File)] private string MapFilePath = "";
 	[Export(PropertyHint.File)] private string MapConfigFilePath = "";
 	
-	//TODO: Check about turning this into a resource
 	[Export(PropertyHint.File)] private string SunLight;
 	[Export(PropertyHint.File)] private string MoonLight;
 	
-	[Export(PropertyHint.NodeType, "StaticBody3D")]
-	private StaticBody3D GroundBody = null;
+	[Export(PropertyHint.NodeType, "StaticBody3D")] private StaticBody3D GroundBody = null;
+
 	[Export] private bool AdaptGroundSize = false;
 
-	
 	//Signals can only use Variant types, so we need to send it as an int and cast it on the signal handler
 	//More info: https://docs.godotengine.org/en/stable/tutorials/scripting/c_sharp/c_sharp_variant.html#variant-compatible-types
 	[Signal]

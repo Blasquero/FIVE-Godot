@@ -1,8 +1,9 @@
 using Artalk.Xmpp;
 using Godot;
+using godotfive.scripts.interfaces;
 using Newtonsoft.Json;
 
-public partial class ControllableAgent : CharacterBody3D
+public partial class ControllableAgent : CharacterBody3D, IMessageReceiver
 {
 	[ExportCategory("Configuration")] [Export]
 	private float MovementSpeed = 5f;
@@ -14,6 +15,7 @@ public partial class ControllableAgent : CharacterBody3D
 		OwnerJID = OwnerJid;
 	}
 
+	
 	public string GetOwnerJID() => OwnerJID;
 
 	private NavigationAgent3D NavAgent3D;
@@ -24,7 +26,6 @@ public partial class ControllableAgent : CharacterBody3D
 	{
 		base._Ready();
 
-		XMPPCommunicationManager.GetInstance().OnMessageReceived += OnMessageReceived;
 		NavAgent3D = GetNode<NavigationAgent3D>("NavigationAgent3D");
 		if (NavAgent3D == null)
 		{
@@ -37,6 +38,12 @@ public partial class ControllableAgent : CharacterBody3D
 		{
 			NavAgent3D.VelocityComputed += OnVelocityComputed;
 		}
+	}
+
+	public void SetName(string InName)
+	{
+		Name = InName;
+		XMPPCommunicationManager.GetInstance().RegisterNewMessageReceiver(Name, this);
 	}
 
 	#region Navigation Control
@@ -65,32 +72,30 @@ public partial class ControllableAgent : CharacterBody3D
 			OnVelocityComputed(newVelocity);
 		}
 	}
-
+	
 	private void OnVelocityComputed(Vector3 safeVelocity)
 	{
 		Velocity = safeVelocity;
 		MoveAndSlide();
 	}
 	#endregion
-	
-	private void OnMessageReceived(string senderID, string commandType, string[] commandData)
+
+
+	public void ReceiveMessage(CommandInfo CommandData, string SenderID)
 	{
-		if (senderID != OwnerJID)
-		{
-			return;
-		}
+		string commandType = CommandData.commandName;
 
 		if (commandType == "move_agent")
 		{
-			Vector3 targetPosition = Utilities.Messages.ParseVector3FromMessage(ref commandData[0], out bool success);
-			if (!success)
+			float[] parsedArray = Utilities.Messages.ParseArrayFromMessage(ref CommandData.data[1]);
+			if (parsedArray.Length != 3)
 			{
 				return;
 			}
-			// Utilities.Math.OrientVector3(ref targetPosition);
-			// NavAgent3D.TargetPosition = targetPosition;
+
+			var targetPosition = new Vector3(parsedArray[0], parsedArray[1], parsedArray[2]);
+			Utilities.Math.OrientVector3(ref targetPosition);
+			NavAgent3D.TargetPosition = targetPosition;
 		}
 	}
-
-	
 }

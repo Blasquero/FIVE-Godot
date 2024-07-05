@@ -24,9 +24,8 @@ public partial class SimulationManager : Node
 
 	public override void _Ready()
 	{
-		//TODO: Move this to end of map generation
-		CommunicationManager.StartXMPPClient();
 
+		CommunicationManager.StartXMPPClient();
 		//Cheap way to test snippets of code. Useful to get JSons of objects, test functions with fake results...
 		if (RUNDEBUGCODE)
 		{

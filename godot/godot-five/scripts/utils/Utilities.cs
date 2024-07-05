@@ -1,4 +1,5 @@
 #nullable enable
+using System;
 using Godot;
 using Artalk.Xmpp;
 using Artalk.Xmpp.Im;
@@ -22,29 +23,30 @@ namespace Utilities
 			messageCreated = false;
 			return string.Empty;
 		}
-		public static Vector3 ParseVector3FromMessage(ref string stringToParse, out bool vectorParsed)
+		
+		public static float[] ParseArrayFromMessage(ref string stringToParse)
 		{
-			vectorParsed = false;
+			float[] resultArray = Array.Empty<float>();
+			
 			string trimmedString = stringToParse.Trim();
 
 			if (!trimmedString.StartsWith("{"))
 			{
-				return Vector3.Zero;
+				return resultArray ;
 			}
 
 			trimmedString = trimmedString.Replace("{", "");
 			trimmedString = trimmedString.Replace("}", "");
 			trimmedString = trimmedString.Replace(" ", "");
 			string[] splittedFloats = trimmedString.Split(",");
-			if (splittedFloats.Length != 3)
+
+			resultArray = new float[splittedFloats.Length];
+			for (int i = 0; i < splittedFloats.Length; i++)
 			{
-				//TODO: Log error
-				return Vector3.Zero;
+				resultArray[i] = splittedFloats[i].ToFloat();
 			}
 
-			var parsedVector = new Vector3(splittedFloats[0].ToFloat(), splittedFloats[1].ToFloat(), splittedFloats[2].ToFloat());
-			vectorParsed = true;
-			return parsedVector;
+			return resultArray;
 		}
 	}
 

@@ -1,9 +1,10 @@
-using System;
+
 using System.Collections.Generic;
 using System.Diagnostics;
 using Godot;
 using Artalk.Xmpp.Client;
 using Artalk.Xmpp.Im;
+using godotfive.scripts.interfaces;
 using MessageEventArgs = Artalk.Xmpp.Im.MessageEventArgs;
 
 /*
@@ -35,6 +36,8 @@ public partial class XMPPCommunicationManager : Node
 	[Signal]
 	public delegate void OnMessageReceivedEventHandler(string senderID, string commandType, string[] commandData);
 
+	private Dictionary<string, IMessageReceiver> MessageReceivers;
+
 	private static ArtalkXmppClient XmppClient = null;
 
 	public override void _Ready()
@@ -48,6 +51,8 @@ public partial class XMPPCommunicationManager : Node
 		{
 			GD.PrintErr("Tried to create a XMPPCommunicationManager, but there's already one");
 		}
+
+		MessageReceivers = new Dictionary<string, IMessageReceiver>();
 	}
 
 	public void StartXMPPClient()
@@ -78,6 +83,7 @@ public partial class XMPPCommunicationManager : Node
 			return;
 		}
 
+		
 		//This is a background thread, so a signal emitted here won't arrive to any other node. Instead, we use
 		//CallDeferred to send it at EOF
 		//TODO: Check if this causes a delay and test option b) Queue message and propagate it during _Process
@@ -101,8 +107,50 @@ public partial class XMPPCommunicationManager : Node
 		instance.InternalSendMessage(body);
 	}
 
-	private void PropagateMessage(string senderId, string commandType, string[] data)
+	private void PropagateMessage(string senderJID, string commandType, string[] data)
 	{
-		EmitSignal(SignalName.OnMessageReceived, senderId, commandType, data);
+		CommandInfo parsedCommand = new CommandInfo();
+		parsedCommand.commandName = commandType;
+		parsedCommand.data = data;
+		if (parsedCommand.commandName == "command_create")
+		{
+			MessageReceivers["EntityManager"].ReceiveMessage(parsedCommand,senderJID);
+		}
+		else
+		{
+			IMessageReceiver messageTarget;
+			MessageReceivers.TryGetValue(parsedCommand.data[0], out messageTarget);
+			if (messageTarget == null)
+			{
+				return;
+			}
+			messageTarget.ReceiveMessage(parsedCommand, senderJID);
+		}
+	}
+
+	public bool RegisterNewMessageReceiver(string InName, IMessageReceiver Receiver)
+	{
+		if (InName.Length == 0)
+		{
+			
+			return false;
+		}
+
+		if (Receiver == null)
+		{
+			return false;
+		}
+	
+		if (MessageReceivers.ContainsKey(InName))
+		{
+			//TODO: Turn into enum error
+			return false;
+		}
+		return InternalRegisterMessageReceiver(InName, Receiver);
+	}
+
+	private bool InternalRegisterMessageReceiver(string InName, IMessageReceiver Receiver)
+	{
+		return MessageReceivers.TryAdd(InName, Receiver);
 	}
 }
