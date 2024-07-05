@@ -1,14 +1,21 @@
-[gd_scene load_steps=4 format=3 uid="uid://t67ovp05vfqr"]
+[gd_scene load_steps=6 format=3 uid="uid://t67ovp05vfqr"]
 
 [ext_resource type="Script" path="res://scripts/entities/ControllableAgent.cs" id="1_mxvtn"]
 [ext_resource type="PackedScene" uid="uid://dg8a6qjd7lx7v" path="res://meshes/tractor_mesh.tscn" id="2_vfsva"]
+[ext_resource type="Script" path="res://scenes/prefabs/agents/SubViewportComponent.cs" id="3_f1ola"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_h4kg8"]
 size = Vector3(3.53, 3.61, 6.215)
 
-[node name="Tractor" type="CharacterBody3D"]
+[sub_resource type="CylinderMesh" id="CylinderMesh_lhtfe"]
+
+[node name="Tractor" type="CharacterBody3D" node_paths=PackedStringArray("CameraComponent", "MeshComponent", "NavAgent3D", "Camera")]
 transform = Transform3D(-0.25, 0, -2.18557e-08, 0, 0.25, 0, 2.18557e-08, 0, -0.25, 0, 0, 0)
 script = ExtResource("1_mxvtn")
+CameraComponent = NodePath("SubViewport")
+MeshComponent = NodePath("TractorMesh")
+NavAgent3D = NodePath("NavigationAgent3D")
+Camera = NodePath("SubViewport/Camera3D")
 
 [node name="TractorMesh" parent="." instance=ExtResource("2_vfsva")]
 
@@ -19,7 +26,15 @@ shape = SubResource("BoxShape3D_h4kg8")
 [node name="NavigationAgent3D" type="NavigationAgent3D" parent="."]
 avoidance_enabled = true
 
-[node name="SubViewport" type="SubViewport" parent="."]
+[node name="SubViewport" type="SubViewport" parent="." node_paths=PackedStringArray("ChildCamera")]
+script = ExtResource("3_f1ola")
+ChildCamera = NodePath("Camera3D")
 
 [node name="Camera3D" type="Camera3D" parent="SubViewport"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.823, -0.558683)
+transform = Transform3D(1, 0, 0, 0, 0.999998, 0.00174533, 0, -0.00174533, 0.999998, 0, 0.823, -0.558683)
+
+[node name="DebugCameraDirection" type="MeshInstance3D" parent="SubViewport/Camera3D"]
+transform = Transform3D(-0.25, 0, -2.18557e-08, 2.18378e-08, 0.0101114, -0.249795, 8.83969e-10, -0.249795, -0.0101114, 0, -0.222544, -1.39425)
+visible = false
+mesh = SubResource("CylinderMesh_lhtfe")
+skeleton = NodePath("../../..")

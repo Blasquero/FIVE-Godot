@@ -173,14 +173,14 @@ public partial class EntityManager : Node, IMessageReceiver
 		//If it starts with {, it's a vector
 		if (CommandData.data[2].StartsWith("{"))
 		{
-			float[] parsedArray = Utilities.Messages.ParseArrayFromMessage(ref CommandData.data[2]);
-			if (parsedArray.Length !=3)
+			float[] parsedArray = Utilities.Messages.ParseArrayFromMessage(ref CommandData.data[2], out bool succeed, 3);
+			if (!succeed)
 			{
 				return;
 			}
 
 			starterPosition = new Vector3(parsedArray[0], parsedArray[1], parsedArray[2]);
-			Utilities.Math.OrientVector3(ref starterPosition);
+			starterPosition = Utilities.Math.OrientVector3(starterPosition);
 		}
 		else
 		{
