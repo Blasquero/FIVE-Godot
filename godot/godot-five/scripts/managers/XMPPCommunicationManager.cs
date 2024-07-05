@@ -9,7 +9,13 @@ using MessageEventArgs = Artalk.Xmpp.Im.MessageEventArgs;
 
 /*
  * Class dedicated to manage messages from and to the XMPP server
+ *
+ * Todo: Separate XMPP comunication into a component:
+ *		XMPPComunicationManager -> ComunicationManager
+ *			-> ComunicationComponent
+ *				->XMPPComunicationComponent (Create base abstract class/ Interface)
  */
+
 
 public class CommandInfo
 {
@@ -109,9 +115,11 @@ public partial class XMPPCommunicationManager : Node
 
 	private void PropagateMessage(string senderJID, string commandType, string[] data)
 	{
-		CommandInfo parsedCommand = new CommandInfo();
-		parsedCommand.commandName = commandType;
-		parsedCommand.data = data;
+		var parsedCommand = new CommandInfo
+		{
+			commandName = commandType,
+			data = data
+		};
 		if (parsedCommand.commandName == "command_create")
 		{
 			MessageReceivers["EntityManager"].ReceiveMessage(parsedCommand,senderJID);
@@ -122,6 +130,7 @@ public partial class XMPPCommunicationManager : Node
 			MessageReceivers.TryGetValue(parsedCommand.data[0], out messageTarget);
 			if (messageTarget == null)
 			{
+				//TODO: Log error
 				return;
 			}
 			messageTarget.ReceiveMessage(parsedCommand, senderJID);

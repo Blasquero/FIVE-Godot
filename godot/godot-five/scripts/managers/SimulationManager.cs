@@ -1,6 +1,10 @@
 using Godot;
-using Newtonsoft.Json;
-
+/*
+ * Class in charge of managing the simulation, and calling other managers to populate the world, start communications...
+ *  TODO:
+ *		* Unhardcode command names, move them to a table enum CommandType -> string CommandName
+ * 
+ */
 public partial class SimulationManager : Node
 {
 	[ExportCategory("Managers")] 
@@ -18,7 +22,7 @@ public partial class SimulationManager : Node
 	private static MapConfiguration MapConfigData;
 	public static ref MapConfiguration GetMapConfigurationData() => ref MapConfigData;
 
-	private static bool RUNDEBUGCODE = true;
+	private static readonly bool RUNDEBUGCODE = true;
 	
 	#region Godot Overrides
 
@@ -64,7 +68,7 @@ public partial class SimulationManager : Node
 		MapConfigData.InitLetterToPrefabMapping();
 		MapConfigData.ArrayLetterToPrefabMapping();
 
-		Utilities.Math.OrientVector3(ref MapConfigData.origin);
+		MapConfigData.origin = Utilities.Math.OrientVector3(MapConfigData.origin);
 		return true;
 	}
 
@@ -125,13 +129,6 @@ public partial class SimulationManager : Node
 
 	private void PreGenerationCode()
 	{
-		CommandInfo testCommand = new CommandInfo();
-		testCommand.commandName = "move_agent";
-		testCommand.data = new string[1];
-		System.Numerics.Vector3 vector = new System.Numerics.Vector3(10, 10, 10);
-		testCommand.data[0] =vector.ToString();
-		
-		string JSon = JsonConvert.SerializeObject(testCommand);
 		return;
 	}
 

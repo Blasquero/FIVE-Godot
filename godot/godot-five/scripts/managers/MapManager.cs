@@ -245,12 +245,12 @@ public partial class MapManager : Node
 	{
 		foreach (LightInfo lightInfo in MapConfingInfo.lights)
 		{
-			Utilities.Math.OrientVector3(ref lightInfo.position);
+			lightInfo.position = Utilities.Math.OrientVector3( lightInfo.position);
 		}
 
 		foreach (ObjectInfo objectInfo in MapConfingInfo.objects)
 		{
-			Utilities.Math.OrientVector3(ref objectInfo.position);
+			objectInfo.position = Utilities.Math.OrientVector3(objectInfo.position);
 		}
 	}
 

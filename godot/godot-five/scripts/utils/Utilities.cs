@@ -1,5 +1,5 @@
 #nullable enable
-using System;
+
 using Godot;
 using Artalk.Xmpp;
 using Artalk.Xmpp.Im;
@@ -8,45 +8,47 @@ using Newtonsoft.Json;
 /*
  * Utility class with static functions regarding communication and messages
  */
+
+
 namespace Utilities
 {
 	public static class Messages
 	{
+		private static readonly string VectorStart = "{";
+		private static readonly string VectorEnd = "}";
+
 		public static void SendMessage(Jid to, string messageBody)
 		{
 			var message = new Message(to: to, body: messageBody, type: MessageType.Chat);
 			XMPPCommunicationManager.SendMessage(message);
 		}
 
-		public static string CreateMessageFromVector3(ref Vector3 vectorToParse, out bool messageCreated)
+		public static string CreateMessageFromVector3(ref Vector3 vectorToParse)
 		{
-			messageCreated = false;
-			return string.Empty;
-		}
+			string parsedArray = vectorToParse.ToString();
+			string fixedString = parsedArray.Substring(1, parsedArray.Length - 2);
+			return VectorStart + fixedString + VectorEnd;
+	}
 		
-		public static float[] ParseArrayFromMessage(ref string stringToParse)
+		public static float[] ParseArrayFromMessage(ref string stringToParse, out bool succeed,
+			int expectedCount = -1)
 		{
-			float[] resultArray = Array.Empty<float>();
-			
 			string trimmedString = stringToParse.Trim();
 
-			if (!trimmedString.StartsWith("{"))
-			{
-				return resultArray ;
-			}
-
-			trimmedString = trimmedString.Replace("{", "");
-			trimmedString = trimmedString.Replace("}", "");
+			trimmedString = trimmedString.Replace(VectorStart, "");
+			trimmedString = trimmedString.Replace(VectorEnd, "");
 			trimmedString = trimmedString.Replace(" ", "");
 			string[] splittedFloats = trimmedString.Split(",");
 
-			resultArray = new float[splittedFloats.Length];
+			float[] parsedFloats = new float[splittedFloats.Length];
 			for (int i = 0; i < splittedFloats.Length; i++)
 			{
-				resultArray[i] = splittedFloats[i].ToFloat();
+				parsedFloats[i] = splittedFloats[i].ToFloat();
 			}
 
-			return resultArray;
+			int numParsed = parsedFloats.Length;
+			succeed = expectedCount <= 0 ? numParsed > 0 : numParsed == expectedCount;
+			return parsedFloats;
 		}
 	}
 
@@ -119,9 +121,10 @@ namespace Utilities
 	public static class Math
 	{
 		//Godot is right-handed. Assume that Unity is king and all the vectors we receive are left-handed
-		public static void OrientVector3(ref Vector3 vectorToOrient)
+		public static Vector3 OrientVector3(Vector3 vectorToOrient)
 		{
 			vectorToOrient.Z *= -1;
+			return vectorToOrient;
 		}
 	}
 }

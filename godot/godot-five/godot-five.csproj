@@ -9,6 +9,8 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="meshes\" />
+    <Folder Include="scripts\managers\Components\" />
     <Folder Include="scripts\resources\" />
   </ItemGroup>
 </Project>
