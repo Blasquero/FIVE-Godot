@@ -1,0 +1,7 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://dyx86gdfd0wte"]
+
+[resource]
+resource_name = "tractor_mat"
+albedo_color = Color(0.906332, 0.906332, 0.906332, 1)
+metallic = 0.2
+roughness = 0.8

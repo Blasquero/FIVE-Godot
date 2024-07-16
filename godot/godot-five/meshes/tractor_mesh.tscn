@@ -1,0 +1,7 @@
+[gd_scene load_steps=3 format=3 uid="uid://dg8a6qjd7lx7v"]
+
+[ext_resource type="PackedScene" uid="uid://v8bibkrfku3a" path="res://skeletons/Fbx/tractor.glb" id="1_bf1l7"]
+[ext_resource type="Script" path="res://scripts/entities/MeshController.cs" id="2_iij2f"]
+
+[node name="tractor_mesh" instance=ExtResource("1_bf1l7")]
+script = ExtResource("2_iij2f")

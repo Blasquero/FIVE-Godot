@@ -1,0 +1,7 @@
+[gd_resource type="Resource" load_steps=2 format=3 uid="uid://cj1hhwtdo266f"]
+
+[ext_resource type="Script" path="res://scripts/resources/StringToScene.cs" id="1_wpo8f"]
+
+[resource]
+script = ExtResource("1_wpo8f")
+identifier = ""
