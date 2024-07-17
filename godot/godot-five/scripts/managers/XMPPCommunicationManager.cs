@@ -1,4 +1,5 @@
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Godot;
@@ -45,7 +46,7 @@ public partial class XMPPCommunicationManager : Node
 	private Dictionary<string, IMessageReceiver> MessageReceivers;
 
 	private static ArtalkXmppClient XmppClient = null;
-
+	
 	public override void _Ready()
 	{
 		base._Ready();
@@ -59,6 +60,7 @@ public partial class XMPPCommunicationManager : Node
 		}
 
 		MessageReceivers = new Dictionary<string, IMessageReceiver>();
+		
 	}
 
 	public void StartXMPPClient()
@@ -66,7 +68,15 @@ public partial class XMPPCommunicationManager : Node
 		XmppClient = new ArtalkXmppClient(ServerName, UserName, Password);
 
 		XmppClient.Message += OnNewMessage;
-		XmppClient.Connect();
+		try
+		{
+			XmppClient.Connect();
+
+		}
+		catch (Exception e)
+		{
+			GD.PrintErr($"Found exception {e} when trying to connect to the XMPP server");
+		}
 		if (XmppClient.Connected == false)
 		{
 			GD.PushError($"CommunicationManager::_Ready: Could not connect to server {ServerName}");
@@ -85,7 +95,7 @@ public partial class XMPPCommunicationManager : Node
 		var parsedCommand = Utilities.Files.ParseJson<CommandInfo>(messageEventArgs.Message.Body);
 		if (parsedCommand.commandName == "")
 		{
-			GD.PushError($"Couldn't parse message {messageEventArgs.ToString()}");
+			GD.PushError($"Couldn't parse message {messageEventArgs}");
 			return;
 		}
 
@@ -126,8 +136,7 @@ public partial class XMPPCommunicationManager : Node
 		}
 		else
 		{
-			IMessageReceiver messageTarget;
-			MessageReceivers.TryGetValue(parsedCommand.data[0], out messageTarget);
+			MessageReceivers.TryGetValue(parsedCommand.data[0], out IMessageReceiver messageTarget);
 			if (messageTarget == null)
 			{
 				//TODO: Log error

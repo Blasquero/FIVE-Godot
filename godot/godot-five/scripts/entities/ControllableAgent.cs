@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Artalk.Xmpp;
 using Godot;
 using godotfive.scripts.interfaces;
@@ -8,7 +9,7 @@ public partial class ControllableAgent : CharacterBody3D, IMessageReceiver
 	[ExportCategory("Configuration")] [Export]
 	private float MovementSpeed = 5f;
 
-	[Export] private Viewport CameraComponent;
+	[Export] private SubViewportComponent CameraComponent;
 	[Export] private MeshController MeshComponent;
 	[Export] private NavigationAgent3D NavAgent3D;
 	[Export] private Camera3D Camera;
@@ -16,6 +17,13 @@ public partial class ControllableAgent : CharacterBody3D, IMessageReceiver
 	private string OwnerJID;
 	private bool SentDestinationArrivalMessage = false;
 
+	private async void TryImage()
+	{
+		await ToSignal(GetTree().CreateTimer(5.0f), SceneTreeTimer.SignalName.Timeout);
+		
+		CameraComponent.SetPictureTimer(0);
+	}
+	
 	public void SetOwnerJID(string OwnerJid)
 	{
 		OwnerJID = OwnerJid;
@@ -39,6 +47,11 @@ public partial class ControllableAgent : CharacterBody3D, IMessageReceiver
 		}
 
 		Camera.ClearCurrent();
+
+		CameraComponent.SetWorld3d(GetWorld3D());
+		CameraComponent.OnPictureReady += OnImageToSend;
+		TryImage();
+		
 	}
 
 	public void SetName(string InName)
@@ -51,6 +64,7 @@ public partial class ControllableAgent : CharacterBody3D, IMessageReceiver
 
 	public override void _PhysicsProcess(double delta)
 	{
+		return;
 		base._PhysicsProcess(delta);
 
 		if (NavAgent3D.IsNavigationFinished() && !SentDestinationArrivalMessage)
@@ -91,7 +105,17 @@ public partial class ControllableAgent : CharacterBody3D, IMessageReceiver
 
 	#endregion
 
+	private void OnImageToSend(Image imageToSend)
+	{
+		if (imageToSend == null)
+		{
+			return;
+		}
 
+		byte[] imageAsBytes = imageToSend.SaveJpgToBuffer();
+		string base64 = Marshalls.RawToBase64(imageAsBytes);
+		//TODO: Check answer format and send to agent
+	}
 	public void ReceiveMessage(CommandInfo CommandData, string SenderID)
 	{
 		string commandType = CommandData.commandName;
@@ -149,9 +173,10 @@ public partial class ControllableAgent : CharacterBody3D, IMessageReceiver
 			}
 
 			var positionChange = new Vector3(parsedArray[0], parsedArray[1], parsedArray[2]);
+			positionChange = Utilities.Math.OrientVector3(positionChange);
 			//Special Case: Since the mesh of the tractor is rotated 180 degrees and we work with local space,
 			//we don't need to rotate the vector 
-			Camera.Position += positionChange;
+			CameraComponent.MoveCamera(positionChange);
 			return;
 		}
 
@@ -165,7 +190,20 @@ public partial class ControllableAgent : CharacterBody3D, IMessageReceiver
 			}
 
 			float rotation = System.Math.Clamp(parsedArray[0], 0, 360);
-			Camera.GlobalRotationDegrees = new Vector3(0, rotation, 0);
+			CameraComponent.Rotatecamera(rotation);
+			return;
+		}
+
+		if (commandType == "take_image")
+		{
+			float[] parsedArray =
+				Utilities.Messages.ParseArrayFromMessage(ref CommandData.data[1], out bool succeed, 1);
+			if (!succeed)
+			{
+				return;
+			}
+			float timeSeconds = parsedArray[0];
+			CameraComponent.SetPictureTimer(timeSeconds);
 		}
 	}
 }
