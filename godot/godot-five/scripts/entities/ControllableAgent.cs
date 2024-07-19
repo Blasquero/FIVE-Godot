@@ -17,18 +17,13 @@ public partial class ControllableAgent : CharacterBody3D, IMessageReceiver
 	private string OwnerJID;
 	private bool SentDestinationArrivalMessage = false;
 
-	private async void TryImage()
+	public void Init(string inOwnerJID, string agentName)
 	{
-		await ToSignal(GetTree().CreateTimer(5.0f), SceneTreeTimer.SignalName.Timeout);
-		
-		CameraComponent.SetPictureTimer(0);
+		Name = agentName;
+		OwnerJID = inOwnerJID;
+		Utilities.Messages.SendMessage(OwnerJID, JsonConvert.SerializeObject(GlobalPosition));
 	}
 	
-	public void SetOwnerJID(string OwnerJid)
-	{
-		OwnerJID = OwnerJid;
-	}
-
 	public string GetOwnerJID()
 	{
 		return OwnerJID;
@@ -50,14 +45,6 @@ public partial class ControllableAgent : CharacterBody3D, IMessageReceiver
 
 		CameraComponent.SetWorld3d(GetWorld3D());
 		CameraComponent.OnPictureReady += OnImageToSend;
-		TryImage();
-		
-	}
-
-	public void SetName(string InName)
-	{
-		Name = InName;
-		XMPPCommunicationComponent.GetInstance().RegisterNewMessageReceiver(Name, this);
 	}
 
 	#region Navigation Control
