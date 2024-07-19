@@ -1,8 +1,7 @@
-[gd_scene load_steps=9 format=3 uid="uid://ceh7fq83v8g24"]
+[gd_scene load_steps=8 format=3 uid="uid://ceh7fq83v8g24"]
 
 [ext_resource type="PackedScene" uid="uid://cscyh5yg47tgh" path="res://scenes/managers.tscn" id="2_4vlyc"]
 [ext_resource type="PackedScene" uid="uid://bn5pjd1q8oc7j" path="res://scenes/levels/BaseLevel.tscn" id="4_5nwed"]
-[ext_resource type="PackedScene" uid="uid://t67ovp05vfqr" path="res://scenes/prefabs/agents/Tractor.tscn" id="4_nixrd"]
 [ext_resource type="Script" path="res://scripts/testing/MessageTestingLabel.cs" id="7_nyfsv"]
 
 [sub_resource type="NavigationMesh" id="NavigationMesh_amtbs"]
@@ -40,7 +39,7 @@ MapConfigFilePath = "res://resources/map.json"
 GroundBody = NodePath("../../SimulationWorld/NavigationObstacle3D/Ground")
 
 [node name="SimulationManager" parent="Managers" index="3" node_paths=PackedStringArray("CommunicationManager", "MapManager", "EntityManager")]
-CommunicationManager = NodePath("../CommunicationManager")
+CommunicationManager = NodePath("../XMPPCommunicationComponent")
 MapManager = NodePath("../MapManager")
 EntityManager = NodePath("../EntityManager")
 JsonMapConfigFilePath = "res://resources/map_config.json"
@@ -61,9 +60,6 @@ mesh = SubResource("BoxMesh_d8htj")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00124204, 12.7398, 0.001764)
 text = "MESSAGE TEST LABEL"
 script = ExtResource("7_nyfsv")
-
-[node name="Tractor" parent="." instance=ExtResource("4_nixrd")]
-transform = Transform3D(-0.25, 0, -2.18557e-08, 0, 0.25, 0, 2.18557e-08, 0, -0.25, 39.4612, 0.5, -9.9137)
 
 [editable path="Managers"]
 [editable path="SimulationWorld"]

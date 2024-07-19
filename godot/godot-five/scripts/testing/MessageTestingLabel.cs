@@ -9,7 +9,7 @@ public partial class MessageTestingLabel : Label3D
 	public override void _Ready()
 	{
 		base._Ready();
-		XMPPCommunicationManager.GetInstance().OnMessageReceived += ProcessReceivedMessage;
+		XMPPCommunicationComponent.GetInstance().OnMessageReceived += ProcessReceivedMessage;
 	}
 
 	private void ProcessReceivedMessage(string senderID, string commandType, string[] commandData)

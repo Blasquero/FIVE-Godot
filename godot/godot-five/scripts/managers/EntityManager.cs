@@ -35,13 +35,35 @@ public partial class EntityManager : Node, IMessageReceiver
 
 	[Export] private Dictionary<string, string> SpawnablePrefabs;
 
+	private static EntityManager instance = null;
+
+	public static EntityManager GetInstance()
+	{
+		return instance;
+	}
+
+	public override void _Ready()
+	{
+		base._Ready();
+		
+		if (instance == null)
+		{
+			instance = this;
+		}
+		else
+		{
+			GD.PushWarning("[EntityManager::OnReady] Found an existing instance of EntityManager");
+			QueueFree();
+		}
+	}
+
 	public void StartMapPopulation()
 	{
 		MapConfigData = Utilities.ConfigData.GetMapConfigurationData();
 		MapLayout = Utilities.ConfigData.GetMapInfo();
 		if (MapConfigData == null || MapLayout.GetMapSize() == Vector2I.Zero)
 		{
-			GD.PushError("Map config is empty or the map size is 0");
+			GD.PushError("[EntityManager::StartMapPopulation] Map config is empty or the map size is 0");
 			EmitSignal(SignalName.OnMapPopulationFinished, (int)MapPopulationError.CantAccessConfigData);
 			return;
 		}
@@ -87,7 +109,7 @@ public partial class EntityManager : Node, IMessageReceiver
 		EmitSignal(SignalName.OnMapPopulationFinished, (int)MapPopulationError.OK);
 
 		//Start listening to commands
-		XMPPCommunicationManager.GetInstance().RegisterNewMessageReceiver("EntityManager", this);
+		XMPPCommunicationComponent.GetInstance().RegisterNewMessageReceiver("EntityManager", this);
 
 	}
 
@@ -125,14 +147,14 @@ public partial class EntityManager : Node, IMessageReceiver
 		string entityPath = GetEntityPath(entityChar, out bool pathFound);
 		if (!pathFound || entityPath == null)
 		{
-			GD.PushError($"Found symbol '{entityChar}' without an associated prefab. Skipping");
+			GD.PushWarning($"[EntityManager::SpawnEntityFromChar] Found symbol '{entityChar}' without an associated prefab. Skipping");
 			return null;
 		}
 
 		Node3D newEntity = Utilities.Entities.SpawnNewEntity(entityPath);
 		if (newEntity == null)
 		{
-			GD.PushError($"Couldn't instantiate scene in path {entityPath} associated to symbol {entityChar}");
+			GD.PushError($"[EntityManager::SpawnEntityFromChar] Couldn't instantiate scene in path {entityPath} associated to symbol {entityChar}");
 		}
 		return newEntity;
 	}
@@ -143,7 +165,7 @@ public partial class EntityManager : Node, IMessageReceiver
 		var instance = ResourceLoader.Load<PackedScene>(entityPath).Instantiate() as Node3D;
 		if (instance == null)
 		{
-			//TODO: Log error
+			GD.PrintErr($"[EntityManager::SpawnNewEntity] Could not create instance of entity with path {entityPath}");
 			return null;
 		}
 		Ground.AddChild(instance);
@@ -155,7 +177,7 @@ public partial class EntityManager : Node, IMessageReceiver
 	{
 		if (!SpawnablePrefabs.TryGetValue(agentType, out string pathToEntity))
 		{
-			//TODO: Log error
+			GD.PushWarning($"[EntityManager::SpawnNewAgent] Could not get prefab path for agent type {agentType}");
 			return null;
 		}
 
@@ -168,6 +190,7 @@ public partial class EntityManager : Node, IMessageReceiver
 		string agentName = CommandData.data[0];
 		string agentType = CommandData.data[1];
 
+		//TODO: Move spawning logic to smaller functions
 		// The starter position can be either a spawner or a position
 		Vector3 starterPosition = Vector3.Zero;
 		//If it starts with {, it's a vector
@@ -184,10 +207,12 @@ public partial class EntityManager : Node, IMessageReceiver
 		}
 		else
 		{
-			var selectedSpawner = Ground.GetNode(CommandData.data[2]) as Node3D;
+			string spawnerName = CommandData.data[2];
+			var selectedSpawner = Ground.GetNode(spawnerName) as Node3D;
 			if (selectedSpawner == null)
 			{
-				//TODO: Log error
+				GD.PushWarning($"[EntityManager::ReceiveMessage] Could not find spawner with name {spawnerName}. Aborting entity spawn");
+				return;
 			}
 			else
 			{

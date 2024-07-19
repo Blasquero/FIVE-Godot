@@ -24,10 +24,13 @@ public class CommandInfo
 	public string[] data;
 }
 
-public partial class XMPPCommunicationManager : Node
+public partial class XMPPCommunicationComponent : Node
 {
-	private static XMPPCommunicationManager instance;
-	public static XMPPCommunicationManager GetInstance() => instance;
+	private static XMPPCommunicationComponent instance;
+	public static XMPPCommunicationComponent GetInstance()
+	{ 
+		return instance;
+	}
 
 	[ExportGroup("XMPP Configuration")] [Export]
 	private string ServerName = "";
@@ -56,7 +59,9 @@ public partial class XMPPCommunicationManager : Node
 		}
 		else
 		{
-			GD.PrintErr("Tried to create a XMPPCommunicationManager, but there's already one");
+			GD.PrintErr("[XMPPComunicationComponent::Ready] Tried to create a XMPPCommunicationComponent, but there's already one");
+			QueueFree();
+			return;
 		}
 
 		MessageReceivers = new Dictionary<string, IMessageReceiver>();
@@ -75,11 +80,11 @@ public partial class XMPPCommunicationManager : Node
 		}
 		catch (Exception e)
 		{
-			GD.PrintErr($"Found exception {e} when trying to connect to the XMPP server");
+			GD.PrintErr($"[XMPPComunicationComponent::StartXMPPClient] Found exception {e} when trying to connect to the XMPP server");
 		}
 		if (XmppClient.Connected == false)
 		{
-			GD.PushError($"CommunicationManager::_Ready: Could not connect to server {ServerName}");
+			GD.PushError($"[XMPPComunicationComponent::StartXMPPClient] Could not connect to server {ServerName}");
 		}
 	}
 
@@ -87,7 +92,7 @@ public partial class XMPPCommunicationManager : Node
 	{
 		if (Verbose)
 		{
-			GD.Print($"Message received from {messageEventArgs.Jid} : {messageEventArgs.Message.Body}");
+			GD.Print($"[XMPPComunicationComponent::OnNewMessage] Message received from {messageEventArgs.Jid} : {messageEventArgs.Message.Body}");
 		}
 
 		string senderJID = messageEventArgs.Jid.ToString();
@@ -95,7 +100,7 @@ public partial class XMPPCommunicationManager : Node
 		var parsedCommand = Utilities.Files.ParseJson<CommandInfo>(messageEventArgs.Message.Body);
 		if (parsedCommand.commandName == "")
 		{
-			GD.PushError($"Couldn't parse message {messageEventArgs}");
+			GD.PushWarning($"[XMPPComunicationComponent::OnNewMessage] Couldn't parse message {messageEventArgs}");
 			return;
 		}
 
@@ -139,7 +144,6 @@ public partial class XMPPCommunicationManager : Node
 			MessageReceivers.TryGetValue(parsedCommand.data[0], out IMessageReceiver messageTarget);
 			if (messageTarget == null)
 			{
-				//TODO: Log error
 				return;
 			}
 			messageTarget.ReceiveMessage(parsedCommand, senderJID);

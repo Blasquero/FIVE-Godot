@@ -13,7 +13,7 @@ public partial class SubViewportComponent : SubViewport
 	{
 		if (ChildCamera == null)
 		{
-			GD.PrintErr("[SubViewportComponent] ERROR: Missing child Camera3D");
+			GD.PushWarning("[SubViewportComponent::Ready] Missing child Camera3D");
 			return;
 		}
 		ChildCamera.MakeCurrent();

@@ -57,19 +57,17 @@ public partial class ControllableAgent : CharacterBody3D, IMessageReceiver
 	public void SetName(string InName)
 	{
 		Name = InName;
-		XMPPCommunicationManager.GetInstance().RegisterNewMessageReceiver(Name, this);
+		XMPPCommunicationComponent.GetInstance().RegisterNewMessageReceiver(Name, this);
 	}
 
 	#region Navigation Control
 
 	public override void _PhysicsProcess(double delta)
 	{
-		return;
 		base._PhysicsProcess(delta);
 
 		if (NavAgent3D.IsNavigationFinished() && !SentDestinationArrivalMessage)
 		{
-			//TODO: Send message with position to owner
 			Vector3 CorrectedPosition = Utilities.Math.OrientVector3(GlobalPosition);
 			string PositionAsString = Utilities.Messages.CreateMessageFromVector3(ref CorrectedPosition);
 			Utilities.Messages.SendMessage(new Jid(OwnerJID), PositionAsString);
@@ -113,8 +111,8 @@ public partial class ControllableAgent : CharacterBody3D, IMessageReceiver
 		}
 
 		byte[] imageAsBytes = imageToSend.SaveJpgToBuffer();
-		string base64 = Marshalls.RawToBase64(imageAsBytes);
-		//TODO: Check answer format and send to agent
+		string base64Image = Marshalls.RawToBase64(imageAsBytes);
+		Utilities.Messages.SendImage(Name, base64Image);
 	}
 	public void ReceiveMessage(CommandInfo CommandData, string SenderID)
 	{

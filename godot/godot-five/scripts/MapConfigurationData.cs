@@ -36,7 +36,7 @@ public class SymbolPrefabPair
        
        if (!ResourceLoader.Exists(DataFolder))
        {
-           GD.PushError($"Prefab {PrefabName} not found on {DataFolder}");
+           GD.PushError($"[SymbolPrefabPair::ParseDataFolder] Prefab {PrefabName} not found on {DataFolder}");
        }
    }
 }

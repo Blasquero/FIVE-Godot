@@ -8,8 +8,6 @@ using Newtonsoft.Json;
 /*
  * Utility class with static functions regarding communication and messages
  */
-
-
 namespace Utilities
 {
 	public static class Messages
@@ -20,7 +18,12 @@ namespace Utilities
 		public static void SendMessage(Jid to, string messageBody)
 		{
 			var message = new Message(to: to, body: messageBody, type: MessageType.Chat);
-			XMPPCommunicationManager.SendMessage(message);
+			XMPPCommunicationComponent.SendMessage(message);
+		}
+
+		public static bool SendImage(string agentName, string base64Image)
+		{
+			return TCPCommunicationComponent.SendImageToAgent(agentName, base64Image);
 		}
 
 		public static string CreateMessageFromVector3(ref Vector3 vectorToParse)
@@ -67,7 +70,8 @@ namespace Utilities
 			fileContent = "";
 			if (!FileAccess.FileExists(pathToFile))
 			{
-				GD.PushError($"Error: File {pathToFile} doesn't exist");
+				GD.PushError($"[Utilities.Files.GetFileContent] File {pathToFile} doesn't exist");
+				
 				return Error.FileBadPath;
 			}
 

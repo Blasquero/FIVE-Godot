@@ -32,6 +32,7 @@ public class InfoCollection
 	public LightInfo[] lights;
 	public ObjectInfo[] objects;
 }
+
 #endregion
 
 public enum MapGenerationError
@@ -45,7 +46,11 @@ public enum MapGenerationError
 public readonly struct MapInfo
 {
 	private readonly Vector2I mapSize;
-	public Vector2I GetMapSize() => mapSize;
+
+	public Vector2I GetMapSize()
+	{
+		return mapSize;
+	}
 
 	//Store the map as an array of rows
 	/*
@@ -57,7 +62,11 @@ public readonly struct MapInfo
 	 * will be stored as an array [3][4] where array[0] will be the first row (AAAA)
 	 */
 	private readonly char[,] mapSymbolMatrix;
-	public char[,] GetMapSymbolMatrix() => mapSymbolMatrix;
+
+	public char[,] GetMapSymbolMatrix()
+	{
+		return mapSymbolMatrix;
+	}
 
 	public MapInfo(in char[,] mapSymbolMatrix)
 	{
@@ -73,14 +82,16 @@ public readonly struct MapInfo
 
 public partial class MapManager : Node
 {
-	[ExportGroup("Map Configuration")] 
-	[Export(PropertyHint.File)] private string MapFilePath = "";
+	[ExportGroup("Map Configuration")] [Export(PropertyHint.File)]
+	private string MapFilePath = "";
+
 	[Export(PropertyHint.File)] private string MapConfigFilePath = "";
-	
+
 	[Export(PropertyHint.File)] private string SunLight;
 	[Export(PropertyHint.File)] private string MoonLight;
-	
-	[Export(PropertyHint.NodeType, "StaticBody3D")] private StaticBody3D GroundBody = null;
+
+	[Export(PropertyHint.NodeType, "StaticBody3D")]
+	private StaticBody3D GroundBody = null;
 
 	[Export] private bool AdaptGroundSize = false;
 
@@ -93,10 +104,39 @@ public partial class MapManager : Node
 	private FileAccess MapFileAccess;
 
 	private static MapInfo MapInfo;
-	public static ref MapInfo GetMapInfo() => ref MapInfo;
+
+	public static ref MapInfo GetMapInfo()
+	{
+		return ref MapInfo;
+	}
 
 	private static InfoCollection MapConfingInfo;
-	public static ref InfoCollection GetMapConfigInfo() => ref MapConfingInfo;
+
+	public static ref InfoCollection GetMapConfigInfo()
+	{
+		return ref MapConfingInfo;
+	}
+
+	private static MapManager instance = null;
+
+	public static MapManager GetInstance()
+	{
+		return instance;
+	}
+
+	public override void _Ready()
+	{
+		base._Ready();
+		if (instance == null)
+		{
+			instance = this;
+		}
+		else
+		{
+			GD.PushWarning("[MapManager::OnReady] Found an existing instance of MapManager");
+			QueueFree();
+		}
+	}
 
 	public void StartMapGeneration()
 	{
@@ -125,12 +165,12 @@ public partial class MapManager : Node
 			MapConfigFilePath,
 			out Error error
 		);
-		
+
 		if (error != Error.Ok || MapConfingInfo == null)
 		{
-			GD.PushWarning("WARNING: Couldn't get Light info");
+			GD.PushWarning("[MapManager::StartMapGeneration] Couldn't get Light info");
 		}
-		
+
 		else
 		{
 			CorrectInfoCollectionTransforms();
@@ -149,7 +189,7 @@ public partial class MapManager : Node
 	{
 		if (!FileAccess.FileExists(MapFilePath))
 		{
-			GD.PushError($"Error: File {MapFilePath} doesn't exist");
+			GD.PushError($"[MapManager::StartMapGeneration] File {MapFilePath} doesn't exist");
 			return false;
 		}
 
@@ -161,7 +201,9 @@ public partial class MapManager : Node
 			return true;
 		}
 
-		GD.PrintErr($"Found error {openingError.ToString()} when trying to open file {MapFilePath} ");
+		GD.PrintErr(
+			$"[MapManager::TryGetMapFileContents] Found error {openingError.ToString()} when trying to open file {MapFilePath} "
+		);
 		return false;
 	}
 
@@ -170,7 +212,7 @@ public partial class MapManager : Node
 	{
 		if (fileContents.Length == 0)
 		{
-			GD.PushError("Map file was empty");
+			GD.PushError("[MapManager::ParseMapInfo] Map file is empty");
 			return false;
 		}
 
@@ -245,7 +287,7 @@ public partial class MapManager : Node
 	{
 		foreach (LightInfo lightInfo in MapConfingInfo.lights)
 		{
-			lightInfo.position = Utilities.Math.OrientVector3( lightInfo.position);
+			lightInfo.position = Utilities.Math.OrientVector3(lightInfo.position);
 		}
 
 		foreach (ObjectInfo objectInfo in MapConfingInfo.objects)
@@ -268,22 +310,15 @@ public partial class MapManager : Node
 				//TODO: Comprobar si necesitamos spawnear objetos distintos segun el tipo de luz
 				//DirectionalLight3D lightSource =(DirectionalLight3D) Utilities.Entities.SpawnNewEntity(SunLight);
 				var lightSource = new DirectionalLight3D();
-				if (lightSource == null)
-				{
-					GD.PushWarning("WARNING: Couldn't spawn light sources");
-					return;
-				}
-				
+
 				GroundBody.AddChild(lightSource);
-				lightSource.GlobalPosition =  lightInfo.position;
+				lightSource.GlobalPosition = lightInfo.position;
 				lightSource.GlobalRotation = lightInfo.rotation;
 				lightSource.LightColor = lightInfo.color;
-				
+
 				//TODO: Comprobar que esto funca bien
 				lightSource.LightEnergy = lightInfo.intensity;
 			}
-			
-			
 		}
 	}
 }
