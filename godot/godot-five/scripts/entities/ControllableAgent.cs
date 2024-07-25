@@ -96,9 +96,7 @@ public partial class ControllableAgent : CharacterBody3D, IMessageReceiver
 			return;
 		}
 
-		byte[] imageAsBytes = imageToSend.SaveJpgToBuffer();
-		string base64Image = Marshalls.RawToBase64(imageAsBytes);
-		Utilities.Messages.SendImage(Name, base64Image);
+		Utilities.Messages.SendImage(Name, imageToSend);
 	}
 	public void ReceiveMessage(CommandInfo CommandData, string SenderID)
 	{
