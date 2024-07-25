@@ -72,9 +72,9 @@ public partial class TCPCommunicationComponent : Node
 		connection.OnNameOfAgentReceived -= OnImageConnectionReceivedName;
 	}
 
-	static public bool SendImageToAgent(string agentName, string base64Image)
+	static public bool SendImageToAgent(string agentName, Image imageToSend)
 	{
-		if (agentName.Length == 0 || base64Image.Length == 0)
+		if (agentName.Length == 0 || imageToSend == null)
 		{
 			return false;
 		}
@@ -89,6 +89,15 @@ public partial class TCPCommunicationComponent : Node
 			return false;
 		}
 
-		return agentConnection.SendImage(base64Image);
+		string encodedImage = EncodeImageToBase64(imageToSend);
+		return agentConnection.SendImage(encodedImage);
+	}
+
+	private static string EncodeImageToBase64(Image imageToEncode)
+	{
+		byte[] imageAsBytes = imageToEncode.SaveJpgToBuffer();
+		string base64Image = Marshalls.RawToBase64(imageAsBytes);
+
+		return base64Image;
 	}
 }

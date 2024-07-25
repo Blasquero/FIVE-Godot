@@ -21,9 +21,9 @@ namespace Utilities
 			XMPPCommunicationComponent.SendMessage(message);
 		}
 
-		public static bool SendImage(string agentName, string base64Image)
+		public static bool SendImage(string agentName, Image imageToSend)
 		{
-			return TCPCommunicationComponent.SendImageToAgent(agentName, base64Image);
+			return TCPCommunicationComponent.SendImageToAgent(agentName, imageToSend);
 		}
 
 		public static string CreateMessageFromVector3(ref Vector3 vectorToParse)
