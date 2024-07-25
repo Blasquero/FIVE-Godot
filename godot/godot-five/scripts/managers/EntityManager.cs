@@ -30,7 +30,6 @@ public partial class EntityManager : Node, IMessageReceiver
 	[Export] private NavigationRegion3D NavMesh;
 	[Export] private Node3D Ground;
 
-	//TODO: Check about turning this into a resource
 	[Export] private Dictionary<string, string> BasePrefabs;
 
 	[Export] private Dictionary<string, string> SpawnablePrefabs;
@@ -92,9 +91,8 @@ public partial class EntityManager : Node, IMessageReceiver
 				//We need to name spawners so agents can use them later to spawn entities
 				if (entityChar.ToString().Equals("A"))
 				{
-					//TODO: Check if spawners naming is 0-based
-					newEntity.Name = "Spawner " + numberOfSpawners.ToString();
 					numberOfSpawners++;
+					newEntity.Name = "Spawner " + numberOfSpawners.ToString();
 				}
 
 				Ground.AddChild(newEntity);
@@ -196,7 +194,6 @@ public partial class EntityManager : Node, IMessageReceiver
 		string agentName = CommandData.data[0];
 		string agentType = CommandData.data[1];
 		string starterPositionString = CommandData.data[2];
-		//TODO: Move spawning logic to smaller functions
 
 		Vector3 starterPosition = GetSpawnLocation(starterPositionString);
 		if (starterPosition == Vector3.Inf)

@@ -11,7 +11,6 @@ using MessageEventArgs = Artalk.Xmpp.Im.MessageEventArgs;
 /*
  * Class dedicated to manage messages from and to the XMPP server
  *
- * Todo: Separate XMPP comunication into a component:
  *		XMPPComunicationManager -> ComunicationManager
  *			-> ComunicationComponent
  *				->XMPPComunicationComponent (Create base abstract class/ Interface)

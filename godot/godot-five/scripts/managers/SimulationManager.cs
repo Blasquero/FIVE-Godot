@@ -1,9 +1,8 @@
 using Godot;
 /*
  * Class in charge of managing the simulation, and calling other managers to populate the world, start communications...
- *  TODO: Unhardcode command names, move them to a table enum CommandType -> string CommandName
- * 
  */
+
 public partial class SimulationManager : Node
 {
 	[ExportCategory("Managers")] 

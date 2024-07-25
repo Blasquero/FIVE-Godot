@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using Artalk.Xmpp;
 using Godot;
 using godotfive.scripts.interfaces;

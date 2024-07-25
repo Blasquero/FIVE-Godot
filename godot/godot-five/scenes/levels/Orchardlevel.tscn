@@ -38,10 +38,10 @@ MapFilePath = "res://resources/map.txt"
 MapConfigFilePath = "res://resources/map.json"
 GroundBody = NodePath("../../SimulationWorld/NavigationObstacle3D/Ground")
 
-[node name="SimulationManager" parent="Managers" index="3" node_paths=PackedStringArray("CommunicationManager", "MapManager", "EntityManager")]
-CommunicationManager = NodePath("../XMPPCommunicationComponent")
+[node name="SimulationManager" parent="Managers" index="3" node_paths=PackedStringArray("MapManager", "EntityManager", "TCPCommunicationComponent")]
 MapManager = NodePath("../MapManager")
 EntityManager = NodePath("../EntityManager")
+TCPCommunicationComponent = NodePath("../TCPCommunicationComponent")
 JsonMapConfigFilePath = "res://resources/map_config.json"
 GodotUnityFoldersFilePath = "res://resources/folders_config.json"
 

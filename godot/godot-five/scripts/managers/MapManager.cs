@@ -307,7 +307,7 @@ public partial class MapManager : Node
 
 			if (lightInfo.objectName == "Sun Light")
 			{
-				//TODO: Comprobar si necesitamos spawnear objetos distintos segun el tipo de luz
+				//TODO: Check if we need different types of assets based on what light it is
 				//DirectionalLight3D lightSource =(DirectionalLight3D) Utilities.Entities.SpawnNewEntity(SunLight);
 				var lightSource = new DirectionalLight3D();
 

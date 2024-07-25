@@ -60,7 +60,6 @@ public partial class SubViewportComponent : SubViewport
 		if (seconds < 0)
 		{
 			TimerChild.Stop();
-			return;
 		}
 	}
 	
