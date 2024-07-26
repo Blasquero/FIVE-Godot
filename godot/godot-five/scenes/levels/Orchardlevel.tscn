@@ -38,7 +38,8 @@ MapFilePath = "res://resources/map.txt"
 MapConfigFilePath = "res://resources/map.json"
 GroundBody = NodePath("../../SimulationWorld/NavigationObstacle3D/Ground")
 
-[node name="SimulationManager" parent="Managers" index="3" node_paths=PackedStringArray("MapManager", "EntityManager", "TCPCommunicationComponent")]
+[node name="SimulationManager" parent="Managers" index="3" node_paths=PackedStringArray("XMPPCommunicationComponent", "MapManager", "EntityManager", "TCPCommunicationComponent")]
+XMPPCommunicationComponent = NodePath("../XMPPCommunicationComponent")
 MapManager = NodePath("../MapManager")
 EntityManager = NodePath("../EntityManager")
 TCPCommunicationComponent = NodePath("../TCPCommunicationComponent")

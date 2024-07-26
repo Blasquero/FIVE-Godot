@@ -103,7 +103,7 @@ public partial class ControllableAgent : CharacterBody3D, IMessageReceiver
 		string commandType = CommandData.commandName;
 
 
-		if (commandType == "move_agent")
+		if (commandType == "moveTo")
 		{
 			float[] parsedArray =
 				Utilities.Messages.ParseArrayFromMessage(ref CommandData.data[1], out bool succeed, 3);
@@ -118,7 +118,7 @@ public partial class ControllableAgent : CharacterBody3D, IMessageReceiver
 			return;
 		}
 
-		if (commandType == "change_color")
+		if (commandType == "color")
 		{
 			float[] parsedArray =
 				Utilities.Messages.ParseArrayFromMessage(ref CommandData.data[1], out bool succeed, 4);
@@ -132,7 +132,7 @@ public partial class ControllableAgent : CharacterBody3D, IMessageReceiver
 			return;
 		}
 
-		if (commandType == "change_fov")
+		if (commandType == "cameraFov")
 		{
 			float[] parsedArray =
 				Utilities.Messages.ParseArrayFromMessage(ref CommandData.data[1], out bool succeed, 1);
@@ -145,7 +145,7 @@ public partial class ControllableAgent : CharacterBody3D, IMessageReceiver
 			return;
 		}
 
-		if (commandType == "move_camera")
+		if (commandType == "cameraMove")
 		{
 			float[] parsedArray =
 				Utilities.Messages.ParseArrayFromMessage(ref CommandData.data[1], out bool succeed, 3);
@@ -162,7 +162,7 @@ public partial class ControllableAgent : CharacterBody3D, IMessageReceiver
 			return;
 		}
 
-		if (commandType == "rotate_camera")
+		if (commandType == "cameraRotate")
 		{
 			float[] parsedArray =
 				Utilities.Messages.ParseArrayFromMessage(ref CommandData.data[1], out bool succeed, 1);
@@ -176,7 +176,7 @@ public partial class ControllableAgent : CharacterBody3D, IMessageReceiver
 			return;
 		}
 
-		if (commandType == "take_image")
+		if (commandType == "image")
 		{
 			float[] parsedArray =
 				Utilities.Messages.ParseArrayFromMessage(ref CommandData.data[1], out bool succeed, 1);

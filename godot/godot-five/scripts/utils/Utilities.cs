@@ -18,6 +18,20 @@ namespace Utilities
 		public static void SendMessage(Jid to, string messageBody)
 		{
 			var message = new Message(to: to, body: messageBody, type: MessageType.Chat);
+			var x = message.Data.OwnerDocument.CreateElement("x", "jabber:x:data");
+			x.SetAttribute("type", "form");
+			var t = x.OwnerDocument.CreateElement("title");
+			t.InnerText = "spade:x:metadata";
+			var f = x.OwnerDocument.CreateElement("field");
+			f.SetAttribute("var", "five");
+			f.SetAttribute("type", "text-single");
+			var v = f.OwnerDocument.CreateElement("value");
+			v.InnerText = "command";
+
+			f.AppendChild(v);
+			x.AppendChild(f);
+			x.AppendChild(t);
+			message.Data.AppendChild(x);
 			XMPPCommunicationComponent.SendMessage(message);
 		}
 

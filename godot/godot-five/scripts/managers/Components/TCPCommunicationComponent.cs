@@ -39,7 +39,7 @@ public partial class TCPCommunicationComponent : Node
 			GD.PrintErr($"[TCPCommunicationComponent::InitServer]: Error {error.ToString()} when trying to set up TCP server");
 			return;
 		}
-		GD.Print("[TCPCommunicationManager::Ready] Imange TCP server online");
+		GD.Print($"[TCPCommunicationManager::Ready] Imange TCP server online in {address}:{port}");
 		
 	}
 
@@ -72,7 +72,7 @@ public partial class TCPCommunicationComponent : Node
 		connection.OnNameOfAgentReceived -= OnImageConnectionReceivedName;
 	}
 
-	static public bool SendImageToAgent(string agentName, Image imageToSend)
+	public static bool SendImageToAgent(string agentName, Image imageToSend)
 	{
 		if (agentName.Length == 0 || imageToSend == null)
 		{

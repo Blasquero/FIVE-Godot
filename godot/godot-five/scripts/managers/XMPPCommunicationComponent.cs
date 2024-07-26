@@ -84,7 +84,9 @@ public partial class XMPPCommunicationComponent : Node
 		if (XmppClient.Connected == false)
 		{
 			GD.PushError($"[XMPPComunicationComponent::StartXMPPClient] Could not connect to server {ServerName}");
+			return;
 		}
+		GD.Print($"[XMPPComunicationComponent::StartXMPPClient] Started XMPP Server {UserName}@{ServerName}");
 	}
 
 	private void OnNewMessage(object sender, MessageEventArgs messageEventArgs)
@@ -134,7 +136,7 @@ public partial class XMPPCommunicationComponent : Node
 			commandName = commandType,
 			data = data
 		};
-		if (parsedCommand.commandName == "command_create")
+		if (parsedCommand.commandName == "create")
 		{
 			MessageReceivers["EntityManager"].ReceiveMessage(parsedCommand,senderJID);
 		}
