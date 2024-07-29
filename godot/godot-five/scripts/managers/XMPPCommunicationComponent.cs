@@ -108,8 +108,7 @@ public partial class XMPPCommunicationComponent : Node
 
 		
 		//This is a background thread, so a signal emitted here won't arrive to any other node. Instead, we use
-		//CallDeferred to send it at EOF
-		//TODO: Check if this causes a delay and test option b) Queue message and propagate it during _Process
+		//CallDeferred to send it at end of frame
 		CallDeferred(
 			"PropagateMessage",
 			senderJID,
@@ -175,7 +174,6 @@ public partial class XMPPCommunicationComponent : Node
 	
 		if (MessageReceivers.ContainsKey(InName))
 		{
-			//TODO: Turn into enum error
 			return false;
 		}
 		return InternalRegisterMessageReceiver(InName, Receiver);
@@ -188,7 +186,7 @@ public partial class XMPPCommunicationComponent : Node
 
 	private string GetAgentNameFromSenderJID(string senderJid)
 	{
-		int cuttingPoint = senderJid.IndexOf("@");
+		int cuttingPoint = senderJid.IndexOf("@", StringComparison.Ordinal);
 		string agentName = senderJid.Substring(0, cuttingPoint);
 		return agentName;
 	}

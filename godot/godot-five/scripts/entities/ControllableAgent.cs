@@ -1,25 +1,26 @@
 using Artalk.Xmpp;
 using Godot;
 using godotfive.scripts.interfaces;
-using Newtonsoft.Json;
 
 public partial class ControllableAgent : CharacterBody3D, IMessageReceiver
 {
 	[ExportCategory("Configuration")] [Export]
 	private float MovementSpeed = 1f;
 
-	[Export] private SubViewportComponent CameraComponent;
 	[Export] private MeshController MeshComponent;
 	[Export] private NavigationAgent3D NavAgent3D;
-	[Export] private Camera3D Camera;
-
+	[Export] private CameraManagerComponent CameraManagerComponent;
+	[Export] private Label3D NameLabel;
+	
 	private string OwnerJID;
-	private bool SentDestinationArrivalMessage = false;
+	private bool SentDestinationArrivalMessage = true;
 
 	public void Init(string inOwnerJID, string agentName)
 	{
 		Name = agentName.ToLower();
+		NameLabel.Text = Name;
 		OwnerJID = inOwnerJID;
+		CameraManagerComponent.SetOwnerJid(inOwnerJID);
 		Utilities.Messages.RegisterMessageReceiver(Name, this);
 		Utilities.Messages.SendCommandMessage(OwnerJID, GlobalPosition);
 	}
@@ -40,11 +41,6 @@ public partial class ControllableAgent : CharacterBody3D, IMessageReceiver
 		{
 			NavAgent3D.VelocityComputed += OnVelocityComputed;
 		}
-
-		Camera.ClearCurrent();
-
-		CameraComponent.SetWorld3d(GetWorld3D());
-		CameraComponent.OnPictureReady += OnImageToSend;
 	}
 
 	#region Navigation Control
@@ -69,7 +65,12 @@ public partial class ControllableAgent : CharacterBody3D, IMessageReceiver
 		Vector3 nextPathPosition = NavAgent3D.GetNextPathPosition();
 		Vector3 newVelocity = GlobalPosition.DirectionTo(nextPathPosition) * MovementSpeed;
 		newVelocity.Y = 0;
-		LookAt(GlobalPosition + newVelocity, Vector3.Up);
+		Vector3 LookAtTarget = GlobalPosition + newVelocity;
+		if (LookAtTarget != GlobalPosition)
+		{
+			LookAt(LookAtTarget, Vector3.Up, true);
+		}
+		
 		newVelocity.Y = -Gravity;
 		if (NavAgent3D.AvoidanceEnabled)
 		{
@@ -89,16 +90,6 @@ public partial class ControllableAgent : CharacterBody3D, IMessageReceiver
 
 	#endregion
 
-	//TODO: Move image sending logic to CameraManager class
-	private void OnImageToSend(Image imageToSend)
-	{
-		if (imageToSend == null)
-		{
-			return;
-		}
-
-		Utilities.Messages.SendImageMessage(GetOwnerJID(), imageToSend);
-	}
 	public void ReceiveMessage(CommandInfo CommandData, string SenderID)
 	{
 		string commandType = CommandData.commandName;
@@ -137,37 +128,40 @@ public partial class ControllableAgent : CharacterBody3D, IMessageReceiver
 	{
 		int cameraIdx = CommandData.data[0].ToInt();
 		float timerSeconds = CommandData.data[1].ToFloat();
-	
-		CameraComponent.SetPictureTimer(timerSeconds);
+
+		SubViewportComponent subViewport = CameraManagerComponent.GetCamera(cameraIdx);
+		subViewport.SetPictureTimer(timerSeconds);
 	}
 
 	private void RotateCamera(CommandInfo CommandData)
 	{
-		float cameraIdx = CommandData.data[0].ToFloat();
+		int cameraIdx = CommandData.data[0].ToInt();
 		int cameraAxis = CommandData.data[1].ToInt();
 		float cameraDegrees = CommandData.data[2].ToFloat();
 		cameraDegrees = System.Math.Clamp(cameraDegrees, 0, 360);
 		
-		CameraComponent.Rotatecamera(cameraAxis, cameraDegrees);
+		SubViewportComponent subViewport = CameraManagerComponent.GetCamera(cameraIdx);
+		subViewport.Rotatecamera(cameraAxis, cameraDegrees);
 	}
 
 	private void MoveCamera(CommandInfo CommandData)
 	{
-		float cameraIdx = CommandData.data[0].ToFloat();
+		int cameraIdx = CommandData.data[0].ToInt();
 		int cameraAxis = CommandData.data[1].ToInt();
 		float cameraMovement = CommandData.data[2].ToFloat();
 		
-		
-		CameraComponent.MoveCamera(cameraAxis, cameraMovement);
+		SubViewportComponent subViewport = CameraManagerComponent.GetCamera(cameraIdx);
+		subViewport.MoveCamera(cameraAxis, cameraMovement);
 	}
 
 	private void ChangeCameraFov(CommandInfo CommandData)
 	{
-		float cameraIdx = CommandData.data[0].ToFloat();
+		int cameraIdx = CommandData.data[0].ToInt();
 		float cameraFov = CommandData.data[1].ToFloat();
 		
 
-		CameraComponent.SetCameraFov(cameraFov);
+		SubViewportComponent subViewport = CameraManagerComponent.GetCamera(cameraIdx);
+		subViewport.SetCameraFov(cameraFov);
 	}
 
 	#endregion

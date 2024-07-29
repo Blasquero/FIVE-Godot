@@ -11,6 +11,7 @@ public partial class SimulationManager : Node
 	[Export] private EntityManager EntityManager;
 	[Export] private TCPCommunicationComponent TCPCommunicationComponent;
 
+
 	[ExportCategory("Configuration files")] [Export]
 	private string JsonMapConfigFilePath;
 

@@ -146,17 +146,10 @@ namespace Utilities
 			XMPPCommunicationComponent.SendMessage(positionAsString, to, "command");
 		}
 		
-		public static void SendImageMessage(Jid to, Image image)
+		public static void SendImageMessage(Jid to, ImageData imageData)
 		{
-			byte[] imageAsBytes = image.SaveJpgToBuffer();
-			string base64Image = Marshalls.RawToBase64(imageAsBytes);
-			var imagedata = new ImageData
-			{
-				cameraIndex = 0,
-				imageBase64 = base64Image,
-				dateTimeUTC = DateTime.Now
-			};
-			string messageBody = JsonConvert.SerializeObject(imagedata); 
+			
+			string messageBody = JsonConvert.SerializeObject(imageData); 
 			XMPPCommunicationComponent.SendMessage(messageBody, to, "image");
 		}
 		public static void RegisterMessageReceiver(string name, IMessageReceiver messageReceiverInterface)

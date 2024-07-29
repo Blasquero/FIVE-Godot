@@ -4,8 +4,9 @@ public partial class SubViewportComponent : SubViewport
 {
 	[Export] private Camera3D ChildCamera;
 	[Export] private Timer TimerChild;
+	[Export] private RemoteTransform3D RemoteTransform;
 	[Signal]
-	public delegate void OnPictureReadyEventHandler(Image picture);
+	public delegate void OnPictureReadyEventHandler(Image picture, SubViewportComponent cameraComponent);
 
 	private float TimeBetweenPictures = 0;
 	
@@ -23,6 +24,7 @@ public partial class SubViewportComponent : SubViewport
 
 	public void SetCameraFov(float Fov)
 	{
+		return;
 		ChildCamera.Fov = Fov;
 	}
 
@@ -42,7 +44,7 @@ public partial class SubViewportComponent : SubViewport
 		Vector3 movementVector = Vector3.Zero;
 		movementVector[cameraAxis] = cameraMovement;
 		
-		ChildCamera.Position += movementVector;
+		RemoteTransform.Position += movementVector;
 		
 	}
 
@@ -53,11 +55,10 @@ public partial class SubViewportComponent : SubViewport
 			return;
 		}
 		
-		Vector3 degreesChange = Vector3.Zero;
-		degreesChange[cameraAxis] = rotationDegrees;
+		Vector3 newRotation = Vector3.Zero;
+		newRotation[cameraAxis] = rotationDegrees;
 		
-		//TODO: Check if this is global or local rotation
-		ChildCamera.RotationDegrees += degreesChange;
+		RemoteTransform.RotationDegrees = newRotation;
 	}
 
 	public void SetWorld3d(World3D newWorld)
@@ -68,7 +69,7 @@ public partial class SubViewportComponent : SubViewport
 	public void SendImage()
 	{
 		Image image = GetTexture().GetImage();
-		EmitSignal(SignalName.OnPictureReady, image);
+		EmitSignal(SignalName.OnPictureReady, image, this);
 	}
 
 	public void SetPictureTimer(float seconds)

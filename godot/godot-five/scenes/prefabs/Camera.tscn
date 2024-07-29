@@ -5,5 +5,4 @@
 [node name="Root" type="Node3D"]
 
 [node name="Camera3D" type="Camera3D" parent="."]
-cull_mask = 1048571
 script = ExtResource("1_y16jr")

@@ -1,8 +1,8 @@
-[gd_scene load_steps=8 format=3 uid="uid://ceh7fq83v8g24"]
+[gd_scene load_steps=9 format=3 uid="uid://ceh7fq83v8g24"]
 
 [ext_resource type="PackedScene" uid="uid://cscyh5yg47tgh" path="res://scenes/managers.tscn" id="2_4vlyc"]
+[ext_resource type="PackedScene" uid="uid://t67ovp05vfqr" path="res://scenes/prefabs/agents/Tractor.tscn" id="3_de22o"]
 [ext_resource type="PackedScene" uid="uid://bn5pjd1q8oc7j" path="res://scenes/levels/BaseLevel.tscn" id="4_5nwed"]
-[ext_resource type="Script" path="res://scripts/testing/MessageTestingLabel.cs" id="7_nyfsv"]
 
 [sub_resource type="NavigationMesh" id="NavigationMesh_amtbs"]
 vertices = PackedVector3Array(-249.5, 1, 0, -30.75, 1, 0, -30, 1, -0.5, -30, 1, -249.5, -249.5, 1, -249.5, -30, 1, -249.5, -30, 1, -0.5, -29.25, 1, 0, 249.5, 1, 0, 249.5, 1, -249.5, -30.75, 1, 0.5, -30.75, 1, 0, -249.5, 1, 0, -30, 1, 0.75, -30.75, 1, 0.5, -249.5, 1, 0, -249.5, 1, 249.5, -30, 1, 249.5, -29.5, 1, 0.75, -30, 1, 0.75, -30, 1, 249.5, -29.25, 1, 0, -29.5, 1, 0.75, -30, 1, 249.5, 249.5, 1, 249.5, 249.5, 1, 0)
@@ -20,6 +20,8 @@ albedo_color = Color(0.811765, 0.6, 0.12549, 1)
 resource_local_to_scene = true
 material = SubResource("ORMMaterial3D_uub50")
 size = Vector3(500, 1, 500)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_y678r"]
 
 [node name="Root" type="Node3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0475464, 0, 0)
@@ -57,11 +59,13 @@ shape = SubResource("BoxShape3D_w6538")
 [node name="MeshInstance3D" parent="SimulationWorld/NavigationObstacle3D/Ground" index="1"]
 mesh = SubResource("BoxMesh_d8htj")
 
-[node name="Label3D" type="Label3D" parent="."]
-transform = Transform3D(0.153469, 0, -0.988154, 0, 1, 0, 0.988154, 0, 0.153469, -0.00124204, 12.7398, 0.001764)
-layers = 4
-text = "MESSAGE TEST LABEL"
-script = ExtResource("7_nyfsv")
+[node name="Tractor" parent="." instance=ExtResource("3_de22o")]
+transform = Transform3D(-0.00505673, 0, 0.249949, 0, 0.25, 0, -0.249949, 0, -0.00505673, -7.62423, 0.424514, -20.9157)
+safe_margin = 0.01
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(4, 0, 0, 0, 4, 0, 0, 0, 4, 0, 24.6647, 0)
+mesh = SubResource("CapsuleMesh_y678r")
 
 [editable path="Managers"]
 [editable path="SimulationWorld"]

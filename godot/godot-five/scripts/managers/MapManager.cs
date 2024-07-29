@@ -217,7 +217,7 @@ public partial class MapManager : Node
 
 		SplitMapInfo(fileContents, out List<string> listInfo);
 
-		StoreMapInfo(listInfo);
+		StoreMapInfo(ref listInfo);
 
 		return true;
 	}
@@ -229,28 +229,51 @@ public partial class MapManager : Node
 
 		//Convert to a list so it's easier to remove empty lines
 		listOfLines = arrayLines.ToList();
-		listOfLines.RemoveAll(line => line.Length == 0);
+		//listOfLines.RemoveAll(line => line.Length == 0);
 		for (int i = 0; i < listOfLines.Count; i++)
 		{
 			listOfLines[i] = listOfLines[i].TrimEnd('\r', '\n');
 		}
 	}
 
-	private void StoreMapInfo(in List<string> listStrings)
+	private void StoreMapInfo(ref List<string> listStrings)
 	{
-		var mapSize = new Vector2I(listStrings[0].Length, listStrings.Count);
-		char[,] symbolMap = new char[mapSize.Y, mapSize.X];
-		for (int i = 0; i < mapSize.Y; i++)
+		int x = listStrings.Count;
+		int z = GetColumnNumber(ref listStrings);
+		char[,] symbolMap = new char[x, z];
+		for (int i = 0; i <x; i++)
 		{
-			for (int j = 0; j < mapSize.X; j++)
+			for (int j = 0; j < z; j++)
 			{
-				symbolMap[i, j] = listStrings[i][j];
+				if (j < listStrings[i].Length)
+				{
+					symbolMap[i, j] = listStrings[i][j];
+				}
+				else
+				{
+					symbolMap[i, j] = ' ';
+				}
 			}
 		}
 
 		MapInfo = new MapInfo(symbolMap);
 	}
 
+
+	private int GetColumnNumber(ref List<string> listString)
+	{
+		int columNumber = 0;
+
+		foreach (string stringColumn in listString)
+		{
+			if (stringColumn.Length > columNumber)
+			{
+				columNumber = stringColumn.Length;
+			}
+		}
+
+		return columNumber;
+	}
 	#endregion
 
 	private void ResizeGround()
