@@ -8,4 +8,5 @@
 
 [node name="Label3D" type="Label3D" parent="root_tree"]
 transform = Transform3D(1000, 0, 0, 0, 1000, 0, 0, 0, 1000, 0, 2744.51, 0)
+layers = 4
 text = "CANKER"

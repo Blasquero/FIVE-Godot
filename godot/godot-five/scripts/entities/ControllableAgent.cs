@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 public partial class ControllableAgent : CharacterBody3D, IMessageReceiver
 {
 	[ExportCategory("Configuration")] [Export]
-	private float MovementSpeed = 5f;
+	private float MovementSpeed = 1f;
 
 	[Export] private SubViewportComponent CameraComponent;
 	[Export] private MeshController MeshComponent;
@@ -18,9 +18,10 @@ public partial class ControllableAgent : CharacterBody3D, IMessageReceiver
 
 	public void Init(string inOwnerJID, string agentName)
 	{
-		Name = agentName;
+		Name = agentName.ToLower();
 		OwnerJID = inOwnerJID;
-		Utilities.Messages.SendMessage(OwnerJID, JsonConvert.SerializeObject(GlobalPosition));
+		Utilities.Messages.RegisterMessageReceiver(Name, this);
+		Utilities.Messages.SendCommandMessage(OwnerJID, GlobalPosition);
 	}
 	
 	public string GetOwnerJID()
@@ -54,10 +55,9 @@ public partial class ControllableAgent : CharacterBody3D, IMessageReceiver
 
 		if (NavAgent3D.IsNavigationFinished() && !SentDestinationArrivalMessage)
 		{
-			Vector3 CorrectedPosition = Utilities.Math.OrientVector3(GlobalPosition);
-			string PositionAsString = Utilities.Messages.CreateMessageFromVector3(ref CorrectedPosition);
-			Utilities.Messages.SendMessage(new Jid(OwnerJID), PositionAsString);
+			Utilities.Messages.SendCommandMessage(new Jid(OwnerJID), GlobalPosition);
 			SentDestinationArrivalMessage = true;
+			GD.Print($"{Name}: Arrived to position {NavAgent3D.TargetPosition}");
 			return;
 		}
 
@@ -89,6 +89,7 @@ public partial class ControllableAgent : CharacterBody3D, IMessageReceiver
 
 	#endregion
 
+	//TODO: Move image sending logic to CameraManager class
 	private void OnImageToSend(Image imageToSend)
 	{
 		if (imageToSend == null)
@@ -96,96 +97,105 @@ public partial class ControllableAgent : CharacterBody3D, IMessageReceiver
 			return;
 		}
 
-		Utilities.Messages.SendImage(Name, imageToSend);
+		Utilities.Messages.SendImageMessage(GetOwnerJID(), imageToSend);
 	}
 	public void ReceiveMessage(CommandInfo CommandData, string SenderID)
 	{
 		string commandType = CommandData.commandName;
 
-
-		if (commandType == "moveTo")
+		switch (commandType)
 		{
-			float[] parsedArray =
-				Utilities.Messages.ParseArrayFromMessage(ref CommandData.data[1], out bool succeed, 3);
-			if (!succeed)
-			{
-				return;
-			}
+			case "moveTo":
+				MoveToPosition(CommandData);
+				break;
+			case "color":
+				ChangeColor(CommandData);
+				break;
+			case "cameraFov":
+				ChangeCameraFov(CommandData);
+				break;
+			case "cameraMove":
+				MoveCamera(CommandData);
+				break;
+			case "cameraRotate":
+				RotateCamera(CommandData);
+				break;
+			case "image":
+				TakeImage(CommandData);
+				break;
+			default:
+				GD.PushWarning($"[ControllableAgent::ReceiveMessage] Agent {Name} received unrecognize command {commandType}");
+				break;
+		}
 
-			var targetPosition = new Vector3(parsedArray[0], parsedArray[1], parsedArray[2]);
-			NavAgent3D.TargetPosition = Utilities.Math.OrientVector3(targetPosition);
-			SentDestinationArrivalMessage = false;
+	}
+
+	#region Camera Commmands
+	
+	//TODO: Update camera methods to manage multiple cameras
+	private void TakeImage(CommandInfo CommandData)
+	{
+		int cameraIdx = CommandData.data[0].ToInt();
+		float timerSeconds = CommandData.data[1].ToFloat();
+	
+		CameraComponent.SetPictureTimer(timerSeconds);
+	}
+
+	private void RotateCamera(CommandInfo CommandData)
+	{
+		float cameraIdx = CommandData.data[0].ToFloat();
+		int cameraAxis = CommandData.data[1].ToInt();
+		float cameraDegrees = CommandData.data[2].ToFloat();
+		cameraDegrees = System.Math.Clamp(cameraDegrees, 0, 360);
+		
+		CameraComponent.Rotatecamera(cameraAxis, cameraDegrees);
+	}
+
+	private void MoveCamera(CommandInfo CommandData)
+	{
+		float cameraIdx = CommandData.data[0].ToFloat();
+		int cameraAxis = CommandData.data[1].ToInt();
+		float cameraMovement = CommandData.data[2].ToFloat();
+		
+		
+		CameraComponent.MoveCamera(cameraAxis, cameraMovement);
+	}
+
+	private void ChangeCameraFov(CommandInfo CommandData)
+	{
+		float cameraIdx = CommandData.data[0].ToFloat();
+		float cameraFov = CommandData.data[1].ToFloat();
+		
+
+		CameraComponent.SetCameraFov(cameraFov);
+	}
+
+	#endregion
+	
+
+	private void ChangeColor(CommandInfo CommandData)
+	{
+		Color parsedColor =
+			Utilities.Messages.ParseColorFromMessage(ref CommandData.data[0], out bool succeed);
+		if (!succeed)
+		{
 			return;
 		}
 
-		if (commandType == "color")
-		{
-			float[] parsedArray =
-				Utilities.Messages.ParseArrayFromMessage(ref CommandData.data[1], out bool succeed, 4);
-			if (!succeed)
-			{
-				return;
-			}
+		MeshComponent.ChangeMeshColor(parsedColor);
+	}
 
-			var newColor = new Color(parsedArray[0], parsedArray[1], parsedArray[2], parsedArray[3]);
-			MeshComponent.ChangeMeshColor(newColor);
+	private void MoveToPosition(CommandInfo CommandData)
+	{
+		Vector3 parsedVector3 =
+			Utilities.Messages.ParseVector3FromMessage(ref CommandData.data[0], out bool succeed);
+		if (!succeed)
+		{
 			return;
 		}
 
-		if (commandType == "cameraFov")
-		{
-			float[] parsedArray =
-				Utilities.Messages.ParseArrayFromMessage(ref CommandData.data[1], out bool succeed, 1);
-			if (!succeed)
-			{
-				return;
-			}
-
-			Camera.Fov = parsedArray[0];
-			return;
-		}
-
-		if (commandType == "cameraMove")
-		{
-			float[] parsedArray =
-				Utilities.Messages.ParseArrayFromMessage(ref CommandData.data[1], out bool succeed, 3);
-			if (!succeed)
-			{
-				return;
-			}
-
-			var positionChange = new Vector3(parsedArray[0], parsedArray[1], parsedArray[2]);
-			positionChange = Utilities.Math.OrientVector3(positionChange);
-			//Special Case: Since the mesh of the tractor is rotated 180 degrees and we work with local space,
-			//we don't need to rotate the vector 
-			CameraComponent.MoveCamera(positionChange);
-			return;
-		}
-
-		if (commandType == "cameraRotate")
-		{
-			float[] parsedArray =
-				Utilities.Messages.ParseArrayFromMessage(ref CommandData.data[1], out bool succeed, 1);
-			if (!succeed)
-			{
-				return;
-			}
-
-			float rotation = System.Math.Clamp(parsedArray[0], 0, 360);
-			CameraComponent.Rotatecamera(rotation);
-			return;
-		}
-
-		if (commandType == "image")
-		{
-			float[] parsedArray =
-				Utilities.Messages.ParseArrayFromMessage(ref CommandData.data[1], out bool succeed, 1);
-			if (!succeed)
-			{
-				return;
-			}
-			float timeSeconds = parsedArray[0];
-			CameraComponent.SetPictureTimer(timeSeconds);
-		}
+		NavAgent3D.TargetPosition = parsedVector3;
+		GD.Print($"{Name}: Setting movement target to {NavAgent3D.TargetPosition}");
+		SentDestinationArrivalMessage = false;
 	}
 }

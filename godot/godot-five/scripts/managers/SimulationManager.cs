@@ -149,7 +149,6 @@ public partial class SimulationManager : Node
 
 	private void PreGenerationCode()
 	{
-		return;
 	}
 
 	private void PostGenerationCode()

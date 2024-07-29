@@ -6,6 +6,7 @@
 
 [node name="Label3D" type="Label3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.53461, 0)
+layers = 4
 text = "HEALTHY"
 
 [node name="root_tree" parent="." instance=ExtResource("1_bnshc")]

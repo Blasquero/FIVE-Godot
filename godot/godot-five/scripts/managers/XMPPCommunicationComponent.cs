@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Artalk.Xmpp;
 using Godot;
 using Artalk.Xmpp.Client;
 using Artalk.Xmpp.Im;
@@ -117,16 +118,23 @@ public partial class XMPPCommunicationComponent : Node
 		);
 	}
 
-	private void InternalSendMessage(Message message)
+	private void InternalSendMessage(Message message, bool skipLogmessage)
 	{
 		Debug.Assert(XmppClient.Connected, "Error: XmppClient is not connected!");
 
+		if (Verbose && !skipLogmessage)
+		{
+			GD.Print($"[XMPPComunicationComponent::InternalSentMessage] Message sent to {message.To} : {message.Body}");
+		}
 		XmppClient.SendMessage(message);
 	}
 
-	public static void SendMessage(Message body)
+	public static void SendMessage(string messageData, Jid to, string metadataInfo)
 	{
-		instance.InternalSendMessage(body);
+		var message = new Message(to: to, body: messageData, type: MessageType.Chat);
+		AddMessageMetadata(metadataInfo, ref message);
+		bool shouldSkipMessage = metadataInfo.Equals("image");
+		instance.InternalSendMessage(message, shouldSkipMessage);
 	}
 
 	private void PropagateMessage(string senderJID, string commandType, string[] data)
@@ -142,7 +150,8 @@ public partial class XMPPCommunicationComponent : Node
 		}
 		else
 		{
-			MessageReceivers.TryGetValue(parsedCommand.data[0], out IMessageReceiver messageTarget);
+			string agentName = GetAgentNameFromSenderJID(senderJID);
+			MessageReceivers.TryGetValue(agentName, out IMessageReceiver messageTarget);
 			if (messageTarget == null)
 			{
 				return;
@@ -175,5 +184,31 @@ public partial class XMPPCommunicationComponent : Node
 	private bool InternalRegisterMessageReceiver(string InName, IMessageReceiver Receiver)
 	{
 		return MessageReceivers.TryAdd(InName, Receiver);
+	}
+
+	private string GetAgentNameFromSenderJID(string senderJid)
+	{
+		int cuttingPoint = senderJid.IndexOf("@");
+		string agentName = senderJid.Substring(0, cuttingPoint);
+		return agentName;
+	}
+
+
+	private static void AddMessageMetadata(string metadataInfo, ref Message message)
+	{
+		var x = message.Data.OwnerDocument.CreateElement("x", "jabber:x:data");
+		x.SetAttribute("type", "form");
+		var t = x.OwnerDocument.CreateElement("title");
+		t.InnerText = "spade:x:metadata";
+		var f = x.OwnerDocument.CreateElement("field");
+		f.SetAttribute("var", "five");
+		f.SetAttribute("type", "text-single");
+		var v = f.OwnerDocument.CreateElement("value");
+		v.InnerText = metadataInfo;
+
+		f.AppendChild(v);
+		x.AppendChild(f);
+		x.AppendChild(t);
+		message.Data.AppendChild(x);
 	}
 }

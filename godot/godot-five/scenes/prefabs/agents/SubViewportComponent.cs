@@ -21,14 +21,43 @@ public partial class SubViewportComponent : SubViewport
 
 	}
 
-	public void MoveCamera(Vector3 positionChange)
+	public void SetCameraFov(float Fov)
 	{
-		ChildCamera.Position += positionChange;
+		ChildCamera.Fov = Fov;
 	}
 
-	public void Rotatecamera(float rotationDegrees)
+	public void MoveCamera(int cameraAxis, float cameraMovement)
 	{
-		ChildCamera.GlobalRotation=new Vector3(0, rotationDegrees, 0);
+		if (cameraAxis < 0 || cameraAxis > 2)
+		{
+			return;
+		}
+
+		
+		if (cameraAxis == 2)
+		{
+			cameraMovement *= -1;
+		}
+		
+		Vector3 movementVector = Vector3.Zero;
+		movementVector[cameraAxis] = cameraMovement;
+		
+		ChildCamera.Position += movementVector;
+		
+	}
+
+	public void Rotatecamera(int cameraAxis, float rotationDegrees)
+	{
+		if (cameraAxis < 0 || cameraAxis > 2)
+		{
+			return;
+		}
+		
+		Vector3 degreesChange = Vector3.Zero;
+		degreesChange[cameraAxis] = rotationDegrees;
+		
+		//TODO: Check if this is global or local rotation
+		ChildCamera.RotationDegrees += degreesChange;
 	}
 
 	public void SetWorld3d(World3D newWorld)

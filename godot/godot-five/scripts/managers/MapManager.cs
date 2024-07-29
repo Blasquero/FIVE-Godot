@@ -70,14 +70,13 @@ public readonly struct MapInfo
 
 	public MapInfo(in char[,] mapSymbolMatrix)
 	{
-		this.mapSize = new Vector2I(mapSymbolMatrix.GetLength(0), mapSymbolMatrix.GetLength(1));
+		mapSize = new Vector2I(mapSymbolMatrix.GetLength(0), mapSymbolMatrix.GetLength(1));
 		this.mapSymbolMatrix = mapSymbolMatrix;
 	}
 }
 
 // Class in charge of parsing the map information from the map text file and scaling the ground
 /*
- * TODO: look into turning this async?
  */
 
 public partial class MapManager : Node

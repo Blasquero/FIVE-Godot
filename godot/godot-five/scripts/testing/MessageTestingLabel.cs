@@ -25,6 +25,6 @@ public partial class MessageTestingLabel : Label3D
 			Text += (" " + data);
 		}
 		
-		Utilities.Messages.SendMessage(new Jid(senderID), "Message Received and read");
+		//Utilities.Messages.SendMessage(new Jid(senderID), "Message Received and read");
 	}
 }

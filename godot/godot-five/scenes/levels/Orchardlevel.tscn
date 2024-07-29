@@ -58,7 +58,8 @@ shape = SubResource("BoxShape3D_w6538")
 mesh = SubResource("BoxMesh_d8htj")
 
 [node name="Label3D" type="Label3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00124204, 12.7398, 0.001764)
+transform = Transform3D(0.153469, 0, -0.988154, 0, 1, 0, 0.988154, 0, 0.153469, -0.00124204, 12.7398, 0.001764)
+layers = 4
 text = "MESSAGE TEST LABEL"
 script = ExtResource("7_nyfsv")
 

@@ -113,7 +113,7 @@ public partial class EntityManager : Node, IMessageReceiver
 
 	private Vector3 CalculateEntityLocation(int x, int y)
 	{
-		Vector2 offset = new Vector2(x, y) * MapConfigData.distance;
+		Vector2 offset = new Vector2(y, x) * MapConfigData.distance;
 		//TODO: Ground elevation is hardcoded. Find a way to calculate it before populating
 		Vector3 entityLocation = MapConfigData.origin + new Vector3(offset.X, 0.5f, -offset.Y);
 		return entityLocation;
@@ -199,7 +199,7 @@ public partial class EntityManager : Node, IMessageReceiver
 		if (starterPosition == Vector3.Inf)
 		{
 			GD.PushWarning(
-				$"[EntityManager::ReceiveMessage] Couldn't get a starter position from data{starterPositionString}"
+				$"[EntityManager::ReceiveMessage] Couldn't get a starter position from data {starterPositionString}"
 			);
 			return;
 		}
@@ -221,23 +221,14 @@ public partial class EntityManager : Node, IMessageReceiver
 	private Vector3 GetSpawnLocation(string startingPositionInfo)
 	{
 		// The starter position can be either a spawner or a position
-		Vector3 starterPosition = Vector3.Inf;
 		//If it starts with {, it's a vector
 		if (startingPositionInfo.StartsWith("{"))
 		{
-			float[] parsedArray = Utilities.Messages.ParseArrayFromMessage(
+			Vector3 parsedStartPosition = Utilities.Messages.ParseVector3FromMessage(
 				ref startingPositionInfo,
-				out bool succeed,
-				3
+				out bool succeed
 			);
-			if (!succeed)
-			{
-				return starterPosition;
-			}
-
-			starterPosition = new Vector3(parsedArray[0], parsedArray[1], parsedArray[2]);
-			starterPosition = Utilities.Math.OrientVector3(starterPosition);
-			return starterPosition;
+			return parsedStartPosition;
 		}
 		else
 		{
@@ -248,7 +239,7 @@ public partial class EntityManager : Node, IMessageReceiver
 				GD.PushWarning(
 					$"[EntityManager::ReceiveMessage] Could not find spawner with name {spawnerName}. Aborting entity spawn"
 				);
-				return starterPosition;
+				return Vector3.Inf;
 			}
 			else
 			{

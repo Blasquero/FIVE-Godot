@@ -43,6 +43,7 @@ public class SymbolPrefabPair
 
 public class MapConfiguration
 {
+    //TODO: See if we can change this to a UnityVector3
     public Vector3 origin;
     public Vector2 distance;
     public SymbolPrefabPair[] symbolToPrefabMap;
@@ -50,11 +51,13 @@ public class MapConfiguration
     // private string[] keyLetterToPrefabMapping;
     // private string[] valueLetterToPrefabMapping;
 
-    public void InitLetterToPrefabMapping() {
+    public void InitLetterToPrefabMapping()
+    {
         symbolToPrefabMapping = new Dictionary<string, SymbolPrefabPair>();
-        for(int i = 0; i < symbolToPrefabMap.Length; i++) {
-            var key = symbolToPrefabMap[i].Symbol;
-            var value = symbolToPrefabMap[i];
+        foreach (SymbolPrefabPair t in symbolToPrefabMap)
+        {
+            string key = t.Symbol;
+            SymbolPrefabPair value = t;
             symbolToPrefabMapping.Add(key, value);
             value.ParseDataFolder();
         }
