@@ -121,9 +121,10 @@ public partial class XMPPCommunicationComponent : Node
 	{
 		Debug.Assert(XmppClient.Connected, "Error: XmppClient is not connected!");
 
-		if (Verbose && !skipLogmessage)
+		if (Verbose )
 		{
-			GD.Print($"[XMPPComunicationComponent::InternalSentMessage] Message sent to {message.To} : {message.Body}");
+			string body = skipLogmessage ? " Image" : message.Body;
+			GD.Print($"[XMPPComunicationComponent::InternalSentMessage] Message sent to {message.To} : {body}");
 		}
 		XmppClient.SendMessage(message);
 	}

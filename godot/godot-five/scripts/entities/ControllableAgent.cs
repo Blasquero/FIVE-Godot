@@ -10,6 +10,7 @@ public partial class ControllableAgent : CharacterBody3D, IMessageReceiver
 	[Export] private MeshController MeshComponent;
 	[Export] private NavigationAgent3D NavAgent3D;
 	[Export] private CameraManagerComponent CameraManagerComponent;
+	[Export] private NavigationMovement NavigationMovementcomponent;
 	[Export] private Label3D NameLabel;
 	
 	private string OwnerJID;
@@ -53,7 +54,7 @@ public partial class ControllableAgent : CharacterBody3D, IMessageReceiver
 		{
 			Utilities.Messages.SendCommandMessage(new Jid(OwnerJID), GlobalPosition);
 			SentDestinationArrivalMessage = true;
-			GD.Print($"{Name}: Arrived to position {NavAgent3D.TargetPosition}");
+			GD.Print($"{Name}: Arrived to position {GlobalPosition}");
 			return;
 		}
 
@@ -123,7 +124,6 @@ public partial class ControllableAgent : CharacterBody3D, IMessageReceiver
 
 	#region Camera Commmands
 	
-	//TODO: Update camera methods to manage multiple cameras
 	private void TakeImage(CommandInfo CommandData)
 	{
 		int cameraIdx = CommandData.data[0].ToInt();

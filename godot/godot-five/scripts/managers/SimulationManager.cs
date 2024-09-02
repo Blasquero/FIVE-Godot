@@ -29,6 +29,8 @@ public partial class SimulationManager : Node
 	}
 
 	private static readonly bool RUNDEBUGCODE = true;
+	private static readonly bool GETPERFORMANCEMETRICS = true;
+	private float StartSimulationTime = 0;
 	private static SimulationManager instance = null;
 
 	public static SimulationManager GetInstance()
@@ -50,14 +52,18 @@ public partial class SimulationManager : Node
 			QueueFree();
 			return;
 		}
-		XMPPCommunicationComponent.StartXMPPClient();
-		TCPCommunicationComponent.InitServer();
+		
+		//TODO: Check instances of managers
 		//Cheap way to test snippets of code. Useful to get JSons of objects, test functions with fake results...
 		if (RUNDEBUGCODE)
 		{
 			PreGenerationCode();
 		}
-		
+
+		if (GETPERFORMANCEMETRICS)
+		{
+			StartSimulationTime = Time.GetTicksMsec();
+		}
 		if (!ParseGodotUnityFolders())
 		{
 			return;
@@ -134,6 +140,7 @@ public partial class SimulationManager : Node
 		if ((MapPopulationError)populationResult == MapPopulationError.OK)
 		{
 			GD.Print("[SimulationManager::OnMapPopulationFinished] Map populated without issues. Starting communications");
+			//XMPPCommunicationComponent.StartXMPPClient();
 		}
 		else
 		{
@@ -143,6 +150,11 @@ public partial class SimulationManager : Node
 		if (RUNDEBUGCODE)
 		{
 			PostGenerationCode();
+		}
+
+		if (GETPERFORMANCEMETRICS)
+		{
+			PrintPerformanceMetrics();
 		}
 	}
 
@@ -155,5 +167,14 @@ public partial class SimulationManager : Node
 	private void PostGenerationCode()
 	{
 		return;
+	}
+
+	private void PrintPerformanceMetrics()
+	{
+		GD.Print($" Time spent: {Time.GetTicksMsec() - StartSimulationTime} msec");
+		GD.Print($" FPS:{Performance.GetMonitor(Performance.Monitor.TimeFps)}");
+		GD.Print($" Static Memory:{Performance.GetMonitor(Performance.Monitor.MemoryStatic)}");
+		GD.Print($" Object Count :{Performance.GetMonitor(Performance.Monitor.ObjectCount)}");
+		GD.Print($" GPU Memory:{Performance.GetMonitor(Performance.Monitor.RenderVideoMemUsed)}");
 	}
 }

@@ -14,9 +14,7 @@ using Newtonsoft.Json;
 public enum MapPopulationError
 {
 	OK,
-	CantAccessConfigData,
-	MissingSymbol,
-	EntityNotCreated
+	CantAccessConfigData
 }
 
 public partial class EntityManager : Node, IMessageReceiver
@@ -99,7 +97,7 @@ public partial class EntityManager : Node, IMessageReceiver
 				newEntity.GlobalPosition = entityLocation;
 			}
 		}
-
+		//TODO: Add objects from map_config.json
 		if (NavMesh != null)
 		{
 			NavMesh.BakeNavigationMesh();
@@ -151,7 +149,7 @@ public partial class EntityManager : Node, IMessageReceiver
 			return null;
 		}
 
-		Node3D newEntity = Utilities.Entities.SpawnNewEntity(entityPath);
+		Node3D newEntity = SpawnNewEntity(entityPath);
 		if (newEntity == null)
 		{
 			GD.PushError(
@@ -246,5 +244,11 @@ public partial class EntityManager : Node, IMessageReceiver
 				return selectedSpawner.Position;
 			}
 		}
+	}
+	
+	private static Node3D? SpawnNewEntity(string entityPath)
+	{
+		var instance = ResourceLoader.Load<PackedScene>(entityPath).Instantiate() as Node3D;
+		return instance;
 	}
 }

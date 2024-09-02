@@ -29,6 +29,7 @@ public class UnityVector3
 	public UnityVector3()
 	{
 	}
+	
 	public UnityVector3(Vector3 godotVector)
 	{
 		x = godotVector.X;
@@ -58,7 +59,7 @@ public class ImageData
 {
 	public int cameraIndex;
 	public DateTime dateTimeUTC;
-	public string imageBase64;
+	public string imageBase64 = "";
 }
 
 #endregion
@@ -69,8 +70,6 @@ namespace Utilities
 {
 	public static class Messages
 	{
-		private static readonly string VectorStart = "{";
-		private static readonly string VectorEnd = "}";
 		
 		public static Vector3 ParseVector3FromMessage(ref string stringToParse, out bool succeed)
 		{
@@ -116,28 +115,6 @@ namespace Utilities
 			succeed = false;
 			return new Color();
 		}
-		public static float[] ParseArrayFromMessage(ref string stringToParse, out bool succeed,
-			int expectedCount = -1)
-		{
-			string trimmedString = stringToParse.Trim();
-
-			trimmedString = trimmedString.Replace(VectorStart, "");
-			trimmedString = trimmedString.Replace(VectorEnd, "");
-			trimmedString = trimmedString.Replace(" ", "");
-			string[] splittedFloats = trimmedString.Split(",");
-
-			float[] parsedFloats = new float[splittedFloats.Length];
-			for (int i = 0; i < splittedFloats.Length; i++)
-			{
-				parsedFloats[i] = splittedFloats[i].ToFloat();
-			}
-
-			int numParsed = parsedFloats.Length;
-			succeed = expectedCount <= 0 ? numParsed > 0 : numParsed == expectedCount;
-			return parsedFloats;
-		}
-		
-		
 		
 		public static void SendCommandMessage(Jid to, Vector3 positionVector)
 		{
@@ -163,16 +140,7 @@ namespace Utilities
 		}
 		
 	}
-
 	
-	public static class Entities
-	{
-		public static Node3D? SpawnNewEntity(string entityPath)
-		{
-			var instance = ResourceLoader.Load<PackedScene>(entityPath).Instantiate() as Node3D;
-			return instance;
-		}
-	}
 	public static class Files
 	{
 		public static Error GetFileContent(string pathToFile, out string fileContent)
