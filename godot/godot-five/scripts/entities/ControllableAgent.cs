@@ -12,16 +12,16 @@ public partial class ControllableAgent : CharacterBody3D, IMessageReceiver
 	[Export] private CameraManagerComponent CameraManagerComponent;
 	[Export] private NavigationMovement NavigationMovementcomponent;
 	[Export] private Label3D NameLabel;
-	
-	private string OwnerJID;
-	private bool SentDestinationArrivalMessage = true;
 
+	private string OwnerJID;
+	
 	public void Init(string inOwnerJID, string agentName)
 	{
 		Name = agentName.ToLower();
 		NameLabel.Text = Name;
 		OwnerJID = inOwnerJID;
 		CameraManagerComponent.SetOwnerJid(inOwnerJID);
+		NavigationMovementcomponent.SetOwnerJIDAndName(inOwnerJID, Name);
 		Utilities.Messages.RegisterMessageReceiver(Name, this);
 		Utilities.Messages.SendCommandMessage(OwnerJID, GlobalPosition);
 	}
@@ -30,66 +30,6 @@ public partial class ControllableAgent : CharacterBody3D, IMessageReceiver
 	{
 		return OwnerJID;
 	}
-
-	private float Gravity = ProjectSettings.GetSetting("physics/3d/default_gravity").AsSingle();
-
-	public override void _Ready()
-	{
-		base._Ready();
-
-		NavAgent3D.MaxSpeed = MovementSpeed;
-		if (NavAgent3D.AvoidanceEnabled)
-		{
-			NavAgent3D.VelocityComputed += OnVelocityComputed;
-		}
-	}
-
-	#region Navigation Control
-
-	public override void _PhysicsProcess(double delta)
-	{
-		base._PhysicsProcess(delta);
-
-		if (NavAgent3D.IsNavigationFinished() && !SentDestinationArrivalMessage)
-		{
-			Utilities.Messages.SendCommandMessage(new Jid(OwnerJID), GlobalPosition);
-			SentDestinationArrivalMessage = true;
-			GD.Print($"{Name}: Arrived to position {GlobalPosition}");
-			return;
-		}
-
-		if (NavAgent3D.IsNavigationFinished())
-		{
-			return;
-		}
-
-		Vector3 nextPathPosition = NavAgent3D.GetNextPathPosition();
-		Vector3 newVelocity = GlobalPosition.DirectionTo(nextPathPosition) * MovementSpeed;
-		newVelocity.Y = 0;
-		Vector3 LookAtTarget = GlobalPosition + newVelocity;
-		if (LookAtTarget != GlobalPosition)
-		{
-			LookAt(LookAtTarget, Vector3.Up, true);
-		}
-		
-		newVelocity.Y = -Gravity;
-		if (NavAgent3D.AvoidanceEnabled)
-		{
-			NavAgent3D.Velocity = newVelocity;
-		}
-		else
-		{
-			OnVelocityComputed(newVelocity);
-		}
-	}
-
-	private void OnVelocityComputed(Vector3 safeVelocity)
-	{
-		Velocity = safeVelocity;
-		MoveAndSlide();
-	}
-
-	#endregion
 
 	public void ReceiveMessage(CommandInfo CommandData, string SenderID)
 	{
@@ -187,9 +127,6 @@ public partial class ControllableAgent : CharacterBody3D, IMessageReceiver
 		{
 			return;
 		}
-
-		NavAgent3D.TargetPosition = parsedVector3;
-		GD.Print($"{Name}: Setting movement target to {NavAgent3D.TargetPosition}");
-		SentDestinationArrivalMessage = false;
+		NavigationMovementcomponent.SetTargetPosition(parsedVector3);
 	}
 }

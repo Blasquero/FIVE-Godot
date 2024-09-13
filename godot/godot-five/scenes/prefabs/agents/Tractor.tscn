@@ -1,16 +1,17 @@
-[gd_scene load_steps=7 format=3 uid="uid://t67ovp05vfqr"]
+[gd_scene load_steps=8 format=3 uid="uid://t67ovp05vfqr"]
 
 [ext_resource type="Script" path="res://scripts/entities/ControllableAgent.cs" id="1_mxvtn"]
 [ext_resource type="Script" path="res://scenes/prefabs/agents/CameraManagerComponent.cs" id="2_k5rd6"]
 [ext_resource type="PackedScene" uid="uid://dg8a6qjd7lx7v" path="res://meshes/tractor_mesh.tscn" id="2_vfsva"]
 [ext_resource type="Script" path="res://scenes/prefabs/agents/SubViewportComponent.cs" id="3_f1ola"]
+[ext_resource type="Script" path="res://scripts/entities/NavigationMovement.cs" id="5_cuuxc"]
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_lhtfe"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_h4kg8"]
 size = Vector3(3.53, 3.61, 6.215)
 
-[node name="Tractor" type="CharacterBody3D" node_paths=PackedStringArray("MeshComponent", "NavAgent3D", "CameraManagerComponent", "NameLabel")]
+[node name="Tractor" type="CharacterBody3D" node_paths=PackedStringArray("MeshComponent", "NavAgent3D", "CameraManagerComponent", "NavigationMovementcomponent", "NameLabel")]
 transform = Transform3D(0.25, 0, 0, 0, 0.25, 0, 0, 0, 0.25, 0, 0, 0)
 axis_lock_linear_y = true
 axis_lock_angular_x = true
@@ -19,6 +20,7 @@ MovementSpeed = 10.0
 MeshComponent = NodePath("TractorMesh")
 NavAgent3D = NodePath("NavigationAgent3D")
 CameraManagerComponent = NodePath("Node3D")
+NavigationMovementcomponent = NodePath("NavigationComponent")
 NameLabel = NodePath("Label3D")
 
 [node name="Node3D" type="Node3D" parent="." node_paths=PackedStringArray("cameras")]
@@ -69,3 +71,4 @@ text = "NAME
 font_size = 128
 
 [node name="NavigationComponent" type="Node3D" parent="."]
+script = ExtResource("5_cuuxc")
