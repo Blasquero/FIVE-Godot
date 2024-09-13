@@ -1,10 +1,7 @@
-using System;
-using System.Data;
+using System.Collections.Generic;
 using System.Diagnostics;
 using Godot;
-using Godot.Collections;
 using godotfive.scripts.interfaces;
-using Newtonsoft.Json;
 
 /*
  * Class in charge of managing entities on the map, spawning and assigning them to agents
@@ -17,6 +14,54 @@ public enum MapPopulationError
 	CantAccessConfigData
 }
 
+
+public class TextureBankComponent
+{
+	private Dictionary<string, List<Texture2D>> TextureDictionary = new();
+
+	public List<Texture2D> GetTexturesOfFolder(string folderPath)
+	{
+		if (TextureDictionary.ContainsKey(folderPath))
+		{
+			return TextureDictionary[folderPath];
+		}
+
+		List<Texture2D> createdTextures = CreateTexturesFromFolder(folderPath);
+		TextureDictionary.Add(folderPath, createdTextures);
+		return createdTextures;
+	}
+
+	private List<Texture2D> CreateTexturesFromFolder(string folderPath)
+	{
+		var createdTextures = new List<Texture2D>();
+		DirAccess dirAccess = DirAccess.Open(folderPath);
+		if (dirAccess == null)
+		{
+			return createdTextures;
+		}
+
+		string[] files = dirAccess.GetFiles();
+		foreach (string file in files)
+		{
+			Image image = Image.LoadFromFile(folderPath + file);
+			if (image == null)
+			{
+				continue;
+			}
+
+			Texture2D newTexture = ImageTexture.CreateFromImage(image);
+			if (newTexture == null)
+			{
+				continue;
+			}
+
+			createdTextures.Add(newTexture);
+		}
+
+		return createdTextures;
+	}
+};
+
 public partial class EntityManager : Node, IMessageReceiver
 {
 	[Signal]
@@ -24,13 +69,14 @@ public partial class EntityManager : Node, IMessageReceiver
 
 	private MapConfiguration MapConfigData = null;
 	private MapInfo MapLayout;
-
+	private float StartPopulationTime = 0;
+	private TextureBankComponent TextureBankComponent;
 	[Export] private NavigationRegion3D NavMesh;
 	[Export] private Node3D Ground;
 
-	[Export] private Dictionary<string, string> BasePrefabs;
+	[Export] private Godot.Collections.Dictionary<string, string> BasePrefabs;
 
-	[Export] private Dictionary<string, string> SpawnablePrefabs;
+	[Export] private Godot.Collections.Dictionary<string, string> SpawnablePrefabs;
 
 	private static EntityManager instance = null;
 
@@ -52,10 +98,13 @@ public partial class EntityManager : Node, IMessageReceiver
 			GD.PushWarning("[EntityManager::OnReady] Found an existing instance of EntityManager");
 			QueueFree();
 		}
+
+		TextureBankComponent = new TextureBankComponent();
 	}
 
 	public void StartMapPopulation()
 	{
+		//StartPopulationTime = Time.GetTicksMsec();
 		MapConfigData = Utilities.ConfigData.GetMapConfigurationData();
 		MapLayout = Utilities.ConfigData.GetMapInfo();
 		if (MapConfigData == null || MapLayout.GetMapSize() == Vector2I.Zero)
@@ -80,7 +129,7 @@ public partial class EntityManager : Node, IMessageReceiver
 				}
 
 				Vector3 entityLocation = CalculateEntityLocation(x, y);
-				Node3D newEntity = SpawnEntityFromChar(entityChar, entityLocation);
+				Node3D newEntity = SpawnEntityFromChar(entityChar);
 				if (newEntity == null)
 				{
 					continue;
@@ -104,7 +153,7 @@ public partial class EntityManager : Node, IMessageReceiver
 		}
 
 		EmitSignal(SignalName.OnMapPopulationFinished, (int)MapPopulationError.OK);
-
+		//GD.Print($" Population Time : {Time.GetTicksMsec() - StartPopulationTime} msec");
 		//Start listening to commands
 		XMPPCommunicationComponent.GetInstance().RegisterNewMessageReceiver("EntityManager", this);
 	}
@@ -117,8 +166,23 @@ public partial class EntityManager : Node, IMessageReceiver
 		return entityLocation;
 	}
 
-	private string GetEntityPath(char symbolChar, out bool pathFound)
+	private bool GetSymbolPaths(char symbolChar, out string dataFolder, out string prefabName)
 	{
+		SymbolPrefabPair symbolInfo;
+		if (!MapConfigData.SymbolToPrefabMapping.TryGetValue(symbolChar.ToString(), out symbolInfo))
+		{
+			dataFolder = "";
+			prefabName = "";
+			return false;
+		}
+
+		prefabName = symbolInfo.DataFolder;
+		dataFolder = symbolInfo.DataFolder;
+		return true;
+	}
+	private string GetEntityPath(char symbolChar, out bool pathFound, out List<Texture2D> textureArray)
+	{
+		textureArray = new List<Texture2D>();
 		string entityPath;
 		if (BasePrefabs.ContainsKey(symbolChar.ToString()))
 		{
@@ -138,9 +202,10 @@ public partial class EntityManager : Node, IMessageReceiver
 		return entityPath;
 	}
 
-	private Node3D SpawnEntityFromChar(char entityChar, Vector3 entityLocation)
+	private Node3D SpawnEntityFromChar(char entityChar)
 	{
-		string entityPath = GetEntityPath(entityChar, out bool pathFound);
+		List<Texture2D> textureList;
+		string entityPath = GetEntityPath(entityChar, out bool pathFound, out textureList);
 		if (!pathFound || entityPath == null)
 		{
 			GD.PushWarning(
@@ -157,22 +222,26 @@ public partial class EntityManager : Node, IMessageReceiver
 			);
 		}
 
+		if (textureList.Count > 0)
+		{
+			//Apply random textures to elements
+		}
 		return newEntity;
 	}
 
 	private Node3D SpawnNewEntity(string entityPath, Vector3 entityLocation)
 	{
 		Debug.Assert(ResourceLoader.Exists(entityPath));
-		var instance = ResourceLoader.Load<PackedScene>(entityPath).Instantiate() as Node3D;
-		if (instance == null)
+		var newInstance = ResourceLoader.Load<PackedScene>(entityPath).Instantiate() as Node3D;
+		if (newInstance == null)
 		{
 			GD.PrintErr($"[EntityManager::SpawnNewEntity] Could not create instance of entity with path {entityPath}");
 			return null;
 		}
 
-		Ground.AddChild(instance);
-		instance.GlobalPosition = entityLocation;
-		return instance;
+		Ground.AddChild(newInstance);
+		newInstance.GlobalPosition = entityLocation;
+		return newInstance;
 	}
 
 	private Node3D SpawnNewAgent(string agentType, Vector3 starterPosition)
@@ -246,9 +315,9 @@ public partial class EntityManager : Node, IMessageReceiver
 		}
 	}
 	
-	private static Node3D? SpawnNewEntity(string entityPath)
+	private static Node3D SpawnNewEntity(string entityPath)
 	{
-		var instance = ResourceLoader.Load<PackedScene>(entityPath).Instantiate() as Node3D;
-		return instance;
+		var newInstance = ResourceLoader.Load<PackedScene>(entityPath).Instantiate() as Node3D;
+		return newInstance;
 	}
 }

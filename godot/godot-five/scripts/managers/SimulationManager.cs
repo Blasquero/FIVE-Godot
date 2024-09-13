@@ -28,6 +28,8 @@ public partial class SimulationManager : Node
 		return ref MapConfigData;
 	}
 
+	private bool LoadingFinished = true;
+	private int frameCount = 600;
 	private static readonly bool RUNDEBUGCODE = true;
 	private static readonly bool GETPERFORMANCEMETRICS = true;
 	private float StartSimulationTime = 0;
@@ -39,6 +41,25 @@ public partial class SimulationManager : Node
 	}
 	
 	#region Godot Overrides
+
+	public override void _Process(double delta)
+	{
+		if (!GETPERFORMANCEMETRICS)
+		{
+			return;
+		}
+		base._Process(delta);
+		if (!LoadingFinished)
+		{
+			return;
+		}
+
+		frameCount--;
+		if (frameCount == 0)
+		{
+			PrintPerformanceMetrics();
+		}
+	}
 
 	public override void _Ready()
 	{
@@ -140,7 +161,8 @@ public partial class SimulationManager : Node
 		if ((MapPopulationError)populationResult == MapPopulationError.OK)
 		{
 			GD.Print("[SimulationManager::OnMapPopulationFinished] Map populated without issues. Starting communications");
-			//XMPPCommunicationComponent.StartXMPPClient();
+			XMPPCommunicationComponent.StartXMPPClient();
+			LoadingFinished = true;
 		}
 		else
 		{
@@ -154,7 +176,7 @@ public partial class SimulationManager : Node
 
 		if (GETPERFORMANCEMETRICS)
 		{
-			PrintPerformanceMetrics();
+			PrintSimulationLoadingTime();
 		}
 	}
 
@@ -169,12 +191,16 @@ public partial class SimulationManager : Node
 		return;
 	}
 
-	private void PrintPerformanceMetrics()
+	private void PrintSimulationLoadingTime()
 	{
 		GD.Print($" Time spent: {Time.GetTicksMsec() - StartSimulationTime} msec");
-		GD.Print($" FPS:{Performance.GetMonitor(Performance.Monitor.TimeFps)}");
-		GD.Print($" Static Memory:{Performance.GetMonitor(Performance.Monitor.MemoryStatic)}");
-		GD.Print($" Object Count :{Performance.GetMonitor(Performance.Monitor.ObjectCount)}");
-		GD.Print($" GPU Memory:{Performance.GetMonitor(Performance.Monitor.RenderVideoMemUsed)}");
+	}
+
+	private void PrintPerformanceMetrics()
+	{
+		GD.Print($" FPS: {Performance.GetMonitor(Performance.Monitor.TimeFps)}");
+		GD.Print($" Object Count: {Performance.GetMonitor(Performance.Monitor.ObjectCount)}");
+		GD.Print($" Static Memory: {Performance.GetMonitor(Performance.Monitor.MemoryStatic)}");
+		GD.Print($" GPU Memory: {Performance.GetMonitor(Performance.Monitor.RenderVideoMemUsed)}");
 	}
 }

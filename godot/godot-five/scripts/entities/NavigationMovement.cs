@@ -1,3 +1,4 @@
+using Artalk.Xmpp;
 using Godot;
 
 public partial class NavigationMovement : CharacterBody3D
@@ -6,7 +7,9 @@ public partial class NavigationMovement : CharacterBody3D
 
     private NavigationAgent3D NavAgent;
     private float Gravity = ProjectSettings.GetSetting("physics/3d/default_gravity").AsSingle();
-    
+
+    private bool SentDestinationArrivalMessage = true;
+    private string OwnerJID;
     public override void _Ready()
     {
         base._Ready();
@@ -15,20 +18,22 @@ public partial class NavigationMovement : CharacterBody3D
         {
             NavAgent.VelocityComputed += OnVelocityComputed;
         }
-        SetTargetPosition(new Vector3(40, 0.578f, 0));
     }
 
     public void SetTargetPosition(Vector3 newTargetPosition)
     {
         NavAgent.TargetPosition = newTargetPosition;
     }
-
+    
     public override void _PhysicsProcess(double delta)
     {
         base._PhysicsProcess(delta);
 
-        if (NavAgent.IsNavigationFinished())
+        if (NavAgent.IsNavigationFinished() && !SentDestinationArrivalMessage)
         {
+            Utilities.Messages.SendCommandMessage(new Jid(OwnerJID), GlobalPosition);
+            SentDestinationArrivalMessage = true;
+            GD.Print($"{Name}: Arrived to position {GlobalPosition}");
             return;
         }
 
@@ -51,5 +56,10 @@ public partial class NavigationMovement : CharacterBody3D
     {
         Velocity = safeVelocity;
         MoveAndSlide();
+    }
+
+    public void SetOwnerJID(string inOwnerJID)
+    {
+        OwnerJID = inOwnerJID;
     }
 }

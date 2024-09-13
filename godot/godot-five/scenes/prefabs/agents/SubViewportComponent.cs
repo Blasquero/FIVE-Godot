@@ -24,7 +24,6 @@ public partial class SubViewportComponent : SubViewport
 
 	public void SetCameraFov(float Fov)
 	{
-		return;
 		ChildCamera.Fov = Fov;
 	}
 

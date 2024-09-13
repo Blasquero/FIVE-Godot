@@ -15,6 +15,7 @@ transform = Transform3D(0.25, 0, 0, 0, 0.25, 0, 0, 0, 0.25, 0, 0, 0)
 axis_lock_linear_y = true
 axis_lock_angular_x = true
 script = ExtResource("1_mxvtn")
+MovementSpeed = 10.0
 MeshComponent = NodePath("TractorMesh")
 NavAgent3D = NodePath("NavigationAgent3D")
 CameraManagerComponent = NodePath("Node3D")
@@ -26,7 +27,7 @@ cameras = [NodePath("SubViewport")]
 
 [node name="SubViewport" type="SubViewport" parent="Node3D" node_paths=PackedStringArray("ChildCamera", "TimerChild", "RemoteTransform")]
 handle_input_locally = false
-size = Vector2i(1024, 768)
+size = Vector2i(100, 100)
 render_target_update_mode = 4
 script = ExtResource("3_f1ola")
 ChildCamera = NodePath("Camera3D")
@@ -42,6 +43,7 @@ current = true
 
 [node name="DebugCameraDirection" type="MeshInstance3D" parent="Node3D/SubViewport/Camera3D"]
 transform = Transform3D(-0.25, 0, -2.18557e-08, 2.18378e-08, 0.0101114, -0.249795, 8.83969e-10, -0.249795, -0.0101114, 0, -0.222544, -1.39425)
+visible = false
 layers = 4
 mesh = SubResource("CylinderMesh_lhtfe")
 skeleton = NodePath("../../../..")
@@ -65,3 +67,5 @@ layers = 4
 text = "NAME
 "
 font_size = 128
+
+[node name="NavigationComponent" type="Node3D" parent="."]
