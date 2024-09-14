@@ -17,23 +17,23 @@ public enum MapPopulationError
 
 public class TextureBankComponent
 {
-	private Dictionary<string, List<Texture2D>> TextureDictionary = new();
+	private Dictionary<string, List<ImageTexture>> TextureDictionary = new();
 
-	public List<Texture2D> GetTexturesOfFolder(string folderPath)
+	public List<ImageTexture> GetTexturesOfFolder(string folderPath)
 	{
 		if (TextureDictionary.ContainsKey(folderPath))
 		{
 			return TextureDictionary[folderPath];
 		}
 
-		List<Texture2D> createdTextures = CreateTexturesFromFolder(folderPath);
+		List<ImageTexture> createdTextures = CreateTexturesFromFolder(folderPath);
 		TextureDictionary.Add(folderPath, createdTextures);
 		return createdTextures;
 	}
 
-	private List<Texture2D> CreateTexturesFromFolder(string folderPath)
+	private List<ImageTexture> CreateTexturesFromFolder(string folderPath)
 	{
-		var createdTextures = new List<Texture2D>();
+		var createdTextures = new List<ImageTexture>();
 		DirAccess dirAccess = DirAccess.Open(folderPath);
 		if (dirAccess == null)
 		{
@@ -43,13 +43,17 @@ public class TextureBankComponent
 		string[] files = dirAccess.GetFiles();
 		foreach (string file in files)
 		{
-			Image image = Image.LoadFromFile(folderPath + file);
+			if (!(file.EndsWith(".jpg") || file.EndsWith(".png")))
+			{
+				continue;
+			}
+			Image image = Image.LoadFromFile(folderPath +"/"+ file);
 			if (image == null)
 			{
 				continue;
 			}
 
-			Texture2D newTexture = ImageTexture.CreateFromImage(image);
+			ImageTexture newTexture = ImageTexture.CreateFromImage(image);
 			if (newTexture == null)
 			{
 				continue;
@@ -165,68 +169,62 @@ public partial class EntityManager : Node, IMessageReceiver
 		Vector3 entityLocation = MapConfigData.origin + new Vector3(offset.X, 0.5f, -offset.Y);
 		return entityLocation;
 	}
-
-	private bool GetSymbolPaths(char symbolChar, out string dataFolder, out string prefabName)
+	
+	private bool GetEntityNameAndPath(char symbolChar, out string prefabName, out string dataFolderPath)
 	{
-		SymbolPrefabPair symbolInfo;
-		if (!MapConfigData.SymbolToPrefabMapping.TryGetValue(symbolChar.ToString(), out symbolInfo))
+		if (MapConfigData.SymbolToPrefabMapping.TryGetValue(symbolChar.ToString(), out SymbolPrefabPair prefabInfo))
 		{
-			dataFolder = "";
-			prefabName = "";
-			return false;
+			prefabName = prefabInfo.PrefabName;
+			dataFolderPath = prefabInfo.DataFolder;
+			return true;
 		}
 
-		prefabName = symbolInfo.DataFolder;
-		dataFolder = symbolInfo.DataFolder;
-		return true;
-	}
-	private string GetEntityPath(char symbolChar, out bool pathFound, out List<Texture2D> textureArray)
-	{
-		textureArray = new List<Texture2D>();
-		string entityPath;
-		if (BasePrefabs.ContainsKey(symbolChar.ToString()))
-		{
-			entityPath = BasePrefabs[symbolChar.ToString()];
-			pathFound = (entityPath != null);
-			return entityPath;
-		}
-
-		if (!MapConfigData.SymbolToPrefabMapping.ContainsKey(symbolChar.ToString()))
-		{
-			pathFound = false;
-			return string.Empty;
-		}
-
-		entityPath = MapConfigData.SymbolToPrefabMapping[symbolChar.ToString()].DataFolder;
-		pathFound = (entityPath != null);
-		return entityPath;
+		prefabName = dataFolderPath = "";
+		return false;
 	}
 
 	private Node3D SpawnEntityFromChar(char entityChar)
 	{
-		List<Texture2D> textureList;
-		string entityPath = GetEntityPath(entityChar, out bool pathFound, out textureList);
-		if (!pathFound || entityPath == null)
+		if (GetEntityNameAndPath(entityChar, out string prefabName, out string dataFolderPath))
+		{
+			if (BasePrefabs.TryGetValue(prefabName, out string prefabPath))
+			{
+				Node3D newEntity = SpawnNewEntity(prefabPath);
+				
+				if (newEntity == null)
+				{
+					GD.PushError(
+						$"[EntityManager::SpawnEntityFromChar] Couldn't find prefab {prefabName} associated to symbol {entityChar}"
+					);
+					return null;
+				}
+
+				if (dataFolderPath!=null)
+				{
+					List<ImageTexture> TexturesToApply = TextureBankComponent.GetTexturesOfFolder(dataFolderPath);
+					TextureChangerComponent entityAsTextureChanger = newEntity as TextureChangerComponent;
+					if (entityAsTextureChanger != null)
+					{
+						entityAsTextureChanger.ApplyRandomTextureToMeshes(TexturesToApply);
+					}
+
+				}
+
+				return newEntity;
+			}
+			
+
+			return null;
+		}
+		
+		else 
 		{
 			GD.PushWarning(
 				$"[EntityManager::SpawnEntityFromChar] Found symbol '{entityChar}' without an associated prefab. Skipping"
 			);
 			return null;
 		}
-
-		Node3D newEntity = SpawnNewEntity(entityPath);
-		if (newEntity == null)
-		{
-			GD.PushError(
-				$"[EntityManager::SpawnEntityFromChar] Couldn't instantiate scene in path {entityPath} associated to symbol {entityChar}"
-			);
-		}
-
-		if (textureList.Count > 0)
-		{
-			//Apply random textures to elements
-		}
-		return newEntity;
+		
 	}
 
 	private Node3D SpawnNewEntity(string entityPath, Vector3 entityLocation)

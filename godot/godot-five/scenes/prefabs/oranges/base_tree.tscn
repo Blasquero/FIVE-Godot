@@ -1,15 +1,33 @@
-[gd_scene load_steps=3 format=3 uid="uid://n078g0pbdcyf"]
+[gd_scene load_steps=5 format=3 uid="uid://n078g0pbdcyf"]
 
 [ext_resource type="PackedScene" uid="uid://dvgdeuwlytymr" path="res://models/tree_low-poly/tree.gltf" id="1_4wifj"]
+[ext_resource type="Script" path="res://scripts/entities/TextureChangerComponent.cs" id="1_tbka5"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_2en20"]
 size = Vector3(130, 1000, 130)
 
-[node name="root_tree" type="Node3D"]
+[sub_resource type="BoxMesh" id="BoxMesh_1yhhe"]
+size = Vector3(80, 80, 80)
+
+[node name="root_tree" type="Node3D" node_paths=PackedStringArray("TextureChangeableMeshes")]
 transform = Transform3D(0.001, 0, 0, 0, 0.001, 0, 0, 0, 0.001, 0, 0, 0)
+script = ExtResource("1_tbka5")
+TextureChangeableMeshes = [NodePath("tree_mesh/MeshInstance3D"), NodePath("tree_mesh/MeshInstance3D2"), NodePath("tree_mesh/MeshInstance3D3")]
 
 [node name="tree_mesh" parent="." instance=ExtResource("1_4wifj")]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="tree_mesh"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 482.129, 0)
 shape = SubResource("BoxShape3D_2en20")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="tree_mesh"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.75072, 717.253, 110.059)
+mesh = SubResource("BoxMesh_1yhhe")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="tree_mesh"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.75072, 508.988, 110.059)
+mesh = SubResource("BoxMesh_1yhhe")
+
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="tree_mesh"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.75072, 508.988, -173.635)
+mesh = SubResource("BoxMesh_1yhhe")

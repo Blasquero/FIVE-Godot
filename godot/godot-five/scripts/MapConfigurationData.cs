@@ -32,11 +32,11 @@ public class SymbolPrefabPair
        
        string unityDataFolder = DataFolder;
        string pathFolder = unityDataFolder.TrimPrefix(foldersConfig.UnityDataFolder);
-       DataFolder = foldersConfig.GodotDataFolder + pathFolder + ".tscn";
+       DataFolder = foldersConfig.GodotDataFolder + pathFolder;
        
-       if (!ResourceLoader.Exists(DataFolder))
+       if (!DirAccess.DirExistsAbsolute(DataFolder))
        {
-           GD.PushError($"[SymbolPrefabPair::ParseDataFolder] Prefab {PrefabName} not found on {DataFolder}");
+           GD.PushError($"[SymbolPrefabPair::ParseDataFolder] Data folder {DataFolder} doesn't exist on project");
        }
    }
 }

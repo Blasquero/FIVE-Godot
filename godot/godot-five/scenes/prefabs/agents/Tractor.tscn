@@ -1,9 +1,9 @@
 [gd_scene load_steps=8 format=3 uid="uid://t67ovp05vfqr"]
 
 [ext_resource type="Script" path="res://scripts/entities/ControllableAgent.cs" id="1_mxvtn"]
-[ext_resource type="Script" path="res://scenes/prefabs/agents/CameraManagerComponent.cs" id="2_k5rd6"]
+[ext_resource type="Script" path="res://scripts/entities/CameraManagerComponent.cs" id="2_k5rd6"]
 [ext_resource type="PackedScene" uid="uid://dg8a6qjd7lx7v" path="res://meshes/tractor_mesh.tscn" id="2_vfsva"]
-[ext_resource type="Script" path="res://scenes/prefabs/agents/SubViewportComponent.cs" id="3_f1ola"]
+[ext_resource type="Script" path="res://scripts/entities/SubViewportComponent.cs" id="3_f1ola"]
 [ext_resource type="Script" path="res://scripts/entities/NavigationMovement.cs" id="5_cuuxc"]
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_lhtfe"]

@@ -29,8 +29,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0475464, 0, 0)
 NavMesh = NodePath("../../SimulationWorld/NavigationObstacle3D")
 Ground = NodePath("../../SimulationWorld/NavigationObstacle3D/Ground")
 BasePrefabs = {
-"A": "res://scenes/prefabs/Spawner.tscn",
-"T": "res://scenes/prefabs/oranges/black spot.tscn"
+"Spawner": "res://scenes/prefabs/Spawner.tscn",
+"Tree": "res://scenes/prefabs/oranges/base_tree.tscn",
+"Tree Fruit Variant": "res://scenes/prefabs/oranges/base_tree.tscn"
 }
 SpawnablePrefabs = {
 "Tractor": "res://scenes/prefabs/agents/Tractor.tscn"
