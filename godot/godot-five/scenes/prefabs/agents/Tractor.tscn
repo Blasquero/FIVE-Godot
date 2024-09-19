@@ -29,7 +29,7 @@ cameras = [NodePath("SubViewport")]
 
 [node name="SubViewport" type="SubViewport" parent="Node3D" node_paths=PackedStringArray("ChildCamera", "TimerChild", "RemoteTransform")]
 handle_input_locally = false
-size = Vector2i(100, 100)
+size = Vector2i(224, 224)
 render_target_update_mode = 4
 script = ExtResource("3_f1ola")
 ChildCamera = NodePath("Camera3D")
@@ -39,7 +39,7 @@ RemoteTransform = NodePath("../../CameraRemoteTransform")
 [node name="Timer" type="Timer" parent="Node3D/SubViewport"]
 
 [node name="Camera3D" type="Camera3D" parent="Node3D/SubViewport"]
-transform = Transform3D(-0.25, 0, -3.7749e-08, 0, 0.25, 0, 3.7749e-08, 0, -0.25, -7.4823e-08, 1.00784, 0.716205)
+transform = Transform3D(-0.25, 0, -3.7749e-08, 0, 0.25, 0, 3.7749e-08, 0, -0.25, 0, 0.735, 0.07)
 cull_mask = 1048571
 current = true
 
@@ -60,11 +60,12 @@ shape = SubResource("BoxShape3D_h4kg8")
 avoidance_enabled = true
 
 [node name="CameraRemoteTransform" type="RemoteTransform3D" parent="."]
-transform = Transform3D(-1, 0, -1.50996e-07, 0, 1, 0, 1.50996e-07, 0, -1, -2.99292e-07, 4.03136, 2.86482)
+transform = Transform3D(-1, 0, -1.50996e-07, 0, 1, 0, 1.50996e-07, 0, -1, 0, 2.94, 0.28)
 remote_path = NodePath("../Node3D/SubViewport/Camera3D")
 
 [node name="Label3D" type="Label3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5.68546, 0)
+visible = false
 layers = 4
 text = "NAME
 "
@@ -72,3 +73,4 @@ font_size = 128
 
 [node name="NavigationComponent" type="Node3D" parent="."]
 script = ExtResource("5_cuuxc")
+MovementSpeed = 2.0
